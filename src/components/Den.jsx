@@ -3,7 +3,6 @@ import { ArrowLeft, Trash2, BookOpenText, CalendarDays } from 'lucide-react'
 import OtterMascot from './OtterMascot.jsx'
 import { dateLabel, shortDateLabel } from '../lib/storage.js'
 import { MOOD_OPTIONS, WEATHER_OPTIONS } from '../data/banks.js'
-import { tempWord } from '../lib/weather.js'
 
 /**
  * The Den — the archive of past journal entries. Browse the shelf,
@@ -73,16 +72,6 @@ export default function Den({ store, onBack, onDelete }) {
               </dt>
               <dd className="font-display text-xl font-bold text-slate-700">
                 {weather ? `${weather.emoji} ${weather.label}` : '—'}
-              </dd>
-            </div>
-            <div className="rounded-2xl bg-otter-50 p-4">
-              <dt className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
-                🌡️ Temperature
-              </dt>
-              <dd className="font-display text-xl font-bold text-slate-700">
-                {e.temperature != null
-                  ? `${tempWord(e.temperature)} (${e.temperature}°F)`
-                  : '—'}
               </dd>
             </div>
             {e.breakfast && (

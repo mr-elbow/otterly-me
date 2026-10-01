@@ -1,6 +1,5 @@
-import { CloudSun, Croissant, Smile, Thermometer } from 'lucide-react'
+import { CloudSun, Croissant, Smile } from 'lucide-react'
 import { WEATHER_OPTIONS, MOOD_OPTIONS, BREAKFAST_SUGGESTIONS } from '../../data/banks.js'
-import { tempWord, tempEmoji, TEMP_STOPS } from '../../lib/weather.js'
 
 export default function Step1Vitals({ draft, setDraft }) {
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
@@ -30,60 +29,6 @@ export default function Step1Vitals({ draft, setDraft }) {
             </option>
           ))}
         </select>
-      </div>
-
-      {/* Temperature slider */}
-      <div>
-        <label className="mb-2 flex items-center gap-2 font-display text-xl font-extrabold text-otter-800">
-          <Thermometer className="h-6 w-6 text-otter-600" /> How does it feel outside?
-        </label>
-        <div className="rounded-2xl bg-otter-50 p-4">
-          <div className="flex items-center justify-center gap-3">
-            <span className="text-6xl">{tempEmoji(draft.temperature)}</span>
-            <div className="text-left">
-              <div className="font-display text-4xl font-extrabold text-otter-800">
-                {tempWord(draft.temperature)}!
-              </div>
-              <div className="text-sm font-bold text-slate-400">
-                {draft.temperature}°F
-              </div>
-            </div>
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            step={1}
-            value={draft.temperature}
-            onChange={(e) => set({ temperature: Number(e.target.value) })}
-            aria-label="How the weather feels, from freezing to scorching"
-            className="mt-3 w-full accent-teal-500"
-          />
-          <div className="mt-2 flex items-start justify-between">
-            {TEMP_STOPS.map((s) => {
-              const active = Math.round(draft.temperature / 25) * 25 === s.temp
-              return (
-                <button
-                  key={s.temp}
-                  type="button"
-                  onClick={() => set({ temperature: s.temp })}
-                  aria-label={`${s.label}, ${s.temp} degrees`}
-                  className={`flex w-16 flex-col items-center rounded-xl p-1 transition-all ${
-                    active ? 'scale-110 bg-white shadow-pop' : 'opacity-60'
-                  }`}
-                >
-                  <span className="text-2xl leading-none">{s.emoji}</span>
-                  <span className="mt-1 text-center text-[11px] font-extrabold leading-tight text-slate-500">
-                    {s.label}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-          <p className="mt-2 text-center text-sm font-bold text-slate-400">
-            Slide it — or just tap how it feels! 👆
-          </p>
-        </div>
       </div>
 
       {/* Breakfast input + suggestions */}

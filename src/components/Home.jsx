@@ -68,7 +68,6 @@ export default function Home({ store, onStartJournal, onOpenDen }) {
             <p className="mt-1 text-slate-600">
               {todayMood ? `${todayMood.emoji} Feeling ${todayMood.label.toLowerCase()}` : ''}
               {todayWeather ? ` · ${todayWeather.emoji} ${todayWeather.label}` : ''}
-              {today.temperature != null ? ` · ${today.temperature}°F` : ''}
               {today.breakfast ? ` · Breakfast: ${today.breakfast}` : ''}
             </p>
             <p className="mt-1 text-sm font-semibold text-slate-400">

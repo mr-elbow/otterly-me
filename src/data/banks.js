@@ -5,9 +5,11 @@
 
 export const WEATHER_OPTIONS = [
   { id: 'sunny', emoji: '☀️', label: 'Sunny' },
+  { id: 'hot', emoji: '🥵', label: 'Hot' },
   { id: 'cloudy', emoji: '⛅', label: 'Cloudy' },
   { id: 'rainy', emoji: '🌧️', label: 'Rainy' },
   { id: 'snowy', emoji: '❄️', label: 'Snowy' },
+  { id: 'freezing', emoji: '🥶', label: 'Freezing' },
   { id: 'stormy', emoji: '⛈️', label: 'Stormy' },
   { id: 'windy', emoji: '💨', label: 'Windy' },
 ]
