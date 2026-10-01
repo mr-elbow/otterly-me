@@ -35,7 +35,9 @@ export default function Step4Celebration({ draft, questions, entryKey, existing,
     const entry = {
       date: entryKey,
       weather: draft.weather,
+      temperature: draft.temperature,
       breakfast: draft.breakfast.trim(),
+      lunchBuddy: draft.lunchBuddy.trim(),
       mood: draft.mood,
       selfie: draft.selfie,
       selfiePrompt: draft.selfiePrompt,
@@ -140,6 +142,8 @@ export default function Step4Celebration({ draft, questions, entryKey, existing,
               {mood?.emoji} {mood?.label} {weather?.emoji} {weather?.label}
             </p>
             {draft.breakfast && <p>🍽️ Breakfast: {draft.breakfast}</p>}
+            <p>🌡️ {draft.temperature}°F outside</p>
+            {draft.lunchBuddy && <p>🧑‍🤝‍🧑 Lunch with: {draft.lunchBuddy}</p>}
             <p className="mt-1 text-sm italic text-slate-400">"{draft.selfiePrompt}"</p>
           </div>
         </div>

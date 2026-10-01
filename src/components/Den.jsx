@@ -74,12 +74,28 @@ export default function Den({ store, onBack, onDelete }) {
                 {weather ? `${weather.emoji} ${weather.label}` : '—'}
               </dd>
             </div>
+            <div className="rounded-2xl bg-otter-50 p-4">
+              <dt className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
+                🌡️ Temperature
+              </dt>
+              <dd className="font-display text-xl font-bold text-slate-700">
+                {e.temperature != null ? `${e.temperature}°F` : '—'}
+              </dd>
+            </div>
             {e.breakfast && (
               <div className="rounded-2xl bg-otter-50 p-4">
                 <dt className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
                   🍽️ Breakfast
                 </dt>
                 <dd className="font-display text-xl font-bold text-slate-700">{e.breakfast}</dd>
+              </div>
+            )}
+            {e.lunchBuddy && (
+              <div className="rounded-2xl bg-otter-50 p-4">
+                <dt className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
+                  🧑‍🤝‍🧑 Sat with at lunch
+                </dt>
+                <dd className="font-display text-xl font-bold text-slate-700">{e.lunchBuddy}</dd>
               </div>
             )}
             <div className="rounded-2xl bg-otter-50 p-4">

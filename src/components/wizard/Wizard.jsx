@@ -36,7 +36,9 @@ export default function Wizard({ store, onSave, onExit }) {
 
   const [draft, setDraft] = useState(() => ({
     weather: existing?.weather ?? '',
+    temperature: existing?.temperature ?? 70,
     breakfast: existing?.breakfast ?? '',
+    lunchBuddy: existing?.lunchBuddy ?? '',
     mood: existing?.mood ?? '',
     selfie: existing?.selfie ?? null,
     selfiePrompt: existing?.selfiePrompt ?? randomPrompt(),

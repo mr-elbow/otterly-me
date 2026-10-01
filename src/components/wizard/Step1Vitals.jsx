@@ -1,5 +1,13 @@
-import { CloudSun, Croissant, Smile } from 'lucide-react'
+import { CloudSun, Croissant, Smile, Thermometer, Users } from 'lucide-react'
 import { WEATHER_OPTIONS, MOOD_OPTIONS, BREAKFAST_SUGGESTIONS } from '../../data/banks.js'
+
+function tempEmoji(t) {
+  if (t <= 32) return '🥶'
+  if (t <= 55) return '🧥'
+  if (t <= 75) return '😊'
+  if (t <= 90) return '☀️'
+  return '🥵'
+}
 
 export default function Step1Vitals({ draft, setDraft }) {
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
@@ -7,7 +15,7 @@ export default function Step1Vitals({ draft, setDraft }) {
   return (
     <div className="space-y-8">
       <p className="text-center text-lg font-semibold text-slate-500">
-        Let's check in! Tell Ollie about your morning. 🦦
+        Let's check in! Tell Ollie about your day. 🦦
       </p>
 
       {/* Weather dropdown */}
@@ -29,6 +37,35 @@ export default function Step1Vitals({ draft, setDraft }) {
             </option>
           ))}
         </select>
+      </div>
+
+      {/* Temperature slider */}
+      <div>
+        <label className="mb-2 flex items-center gap-2 font-display text-xl font-extrabold text-otter-800">
+          <Thermometer className="h-6 w-6 text-otter-600" /> How hot or cold is it outside?
+        </label>
+        <div className="rounded-2xl bg-otter-50 p-4">
+          <div className="flex items-center justify-center gap-3">
+            <span className="text-5xl">{tempEmoji(draft.temperature)}</span>
+            <span className="font-display text-4xl font-extrabold text-otter-800">
+              {draft.temperature}°F
+            </span>
+          </div>
+          <input
+            type="range"
+            min={-20}
+            max={110}
+            step={1}
+            value={draft.temperature}
+            onChange={(e) => set({ temperature: Number(e.target.value) })}
+            aria-label="Outside temperature in Fahrenheit"
+            className="mt-3 w-full accent-teal-500"
+          />
+          <div className="flex justify-between text-sm font-extrabold text-slate-400">
+            <span>🥶 Freezing cold</span>
+            <span>Burning hot 🥵</span>
+          </div>
+        </div>
       </div>
 
       {/* Breakfast input + suggestions */}
@@ -56,6 +93,21 @@ export default function Step1Vitals({ draft, setDraft }) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Lunch buddy */}
+      <div>
+        <label className="mb-2 flex items-center gap-2 font-display text-xl font-extrabold text-otter-800">
+          <Users className="h-6 w-6 text-otter-600" /> Who did you sit with at lunch?
+        </label>
+        <input
+          type="text"
+          value={draft.lunchBuddy}
+          onChange={(e) => set({ lunchBuddy: e.target.value })}
+          placeholder="My best friend Sam…"
+          maxLength={80}
+          className="input-chunky"
+        />
       </div>
 
       {/* Mood picker */}
