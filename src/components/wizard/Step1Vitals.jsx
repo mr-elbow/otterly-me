@@ -3,11 +3,20 @@ import { WEATHER_OPTIONS, MOOD_OPTIONS, BREAKFAST_SUGGESTIONS } from '../../data
 
 function tempEmoji(t) {
   if (t <= 32) return '🥶'
-  if (t <= 55) return '🧥'
-  if (t <= 75) return '😊'
-  if (t <= 90) return '☀️'
+  if (t <= 50) return '🧤'
+  if (t <= 65) return '🧥'
+  if (t <= 85) return '🩳'
   return '🥵'
 }
+
+// Clothing guide stops shown under the slider, cold → hot
+const TEMP_STOPS = [
+  { temp: 0, emoji: '🥶', label: 'Freezing' },
+  { temp: 25, emoji: '🧤', label: 'Chilly' },
+  { temp: 50, emoji: '🧥', label: 'Sweater' },
+  { temp: 75, emoji: '🩳🎽', label: 'Shorts & tank' },
+  { temp: 100, emoji: '🥵', label: 'Scorching' },
+]
 
 export default function Step1Vitals({ draft, setDraft }) {
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
@@ -61,9 +70,23 @@ export default function Step1Vitals({ draft, setDraft }) {
             aria-label="Outside temperature in Fahrenheit"
             className="mt-3 w-full accent-teal-500"
           />
-          <div className="flex justify-between text-sm font-extrabold text-slate-400">
-            <span>🥶 Freezing cold</span>
-            <span>Burning hot 🥵</span>
+          <div className="mt-2 flex items-start justify-between">
+            {TEMP_STOPS.map((s) => {
+              const active = Math.round(draft.temperature / 25) * 25 === s.temp
+              return (
+                <div
+                  key={s.temp}
+                  className={`flex w-16 flex-col items-center rounded-xl p-1 transition-all ${
+                    active ? 'scale-110 bg-white shadow-pop' : 'opacity-60'
+                  }`}
+                >
+                  <span className="text-2xl leading-none">{s.emoji}</span>
+                  <span className="mt-1 text-center text-[11px] font-extrabold leading-tight text-slate-500">
+                    {s.label}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
