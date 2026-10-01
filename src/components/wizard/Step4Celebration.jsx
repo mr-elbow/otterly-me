@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
-import { Save, PartyPopper, Home, AlertTriangle } from 'lucide-react'
+import { Save, PartyPopper, Home, AlertTriangle, ScrollText } from 'lucide-react'
 import OtterMascot from '../OtterMascot.jsx'
 import { upsertEntry } from '../../lib/storage.js'
 import { MOOD_OPTIONS, WEATHER_OPTIONS } from '../../data/banks.js'
+import { historyFactFor, historyDateLabel } from '../../data/history.js'
 
 const CONFETTI_COLORS = ['#14b8a6', '#fbbf24', '#f472b6', '#60a5fa', '#a78bfa', '#34d399', '#fb923c']
 
@@ -43,7 +44,10 @@ export default function Step4Celebration({ draft, questions, entryKey, existing,
       questions: {
         mc: questions.mc,
         reflection: questions.reflection,
+        reflection2: questions.reflection2,
         fun: questions.fun,
+        fav1: questions.fav1,
+        fav2: questions.fav2,
       },
       answers: {
         mc: { q: questions.mc.q, options: questions.mc.options, choice: draft.mc },
@@ -110,6 +114,18 @@ export default function Step4Celebration({ draft, questions, entryKey, existing,
             )}
             <span className="text-5xl">{weather?.emoji}</span>
           </div>
+
+          {/* On this day in history */}
+          <div className="mx-auto mt-6 max-w-md rounded-2xl bg-splash-100 p-5 text-left">
+            <p className="flex items-center gap-2 font-display text-xl font-extrabold text-amber-700">
+              <ScrollText className="h-6 w-6" /> On this day in history…
+            </p>
+            <p className="mt-2 text-lg font-bold text-slate-700">{historyFactFor(entryKey)}</p>
+            <p className="mt-1 text-sm font-extrabold uppercase tracking-wide text-amber-600">
+              📅 {historyDateLabel(entryKey)}
+            </p>
+          </div>
+
           <button
             onClick={onDone}
             className="btn-chunky mt-6 inline-flex items-center gap-2 bg-otter-500 text-xl text-white hover:bg-otter-600"
