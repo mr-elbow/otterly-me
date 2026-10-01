@@ -118,10 +118,29 @@ export const FUN_QUESTIONS = [
   'Design a robot helper. What does it do and what does it look like?',
   'Write a two-line poem about your breakfast.',
   'If clouds were made of food, what would your favorite cloud taste like?',
-  'You find a door in your backyard that was never there before. What is behind it?',
-  'Make up a brand-new sport. What are the rules?',
+  'You find a secret portal in your backyard. Where in the world does it take you?',
+  'You get to add a brand-new room to your house. What is in it?',
   'If animals could go to school, what would your pet\'s favorite subject be?',
   'You are a detective for a day. What mystery do you solve?',
 ]
 
 export const BREAKFAST_ICONS = ['🥞', '🥣', '🍳', '🥯', '🧇', '🍎', '🥛', '🍞']
+
+// Quick-fire favorites — answered in a word or two. Because these rotate,
+// the Den becomes a time capsule of how favorites change over time.
+export const FAVORITES_QUESTIONS = [
+  'What is your favorite color right now?',
+  'Who is your favorite musical artist or band?',
+  'What is your favorite movie?',
+  'What is your favorite food?',
+  'What is your favorite animal?',
+  'What is your favorite book?',
+  'What is your favorite song?',
+  'What is your favorite game to play?',
+  'What is your favorite ice cream flavor?',
+  'What is your favorite holiday?',
+  'What is your favorite subject in school?',
+  'What is your favorite place you have ever been?',
+  'What is your favorite thing to do on the weekend?',
+  'What is your favorite breakfast food?',
+]

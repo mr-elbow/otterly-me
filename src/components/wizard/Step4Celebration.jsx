@@ -37,7 +37,6 @@ export default function Step4Celebration({ draft, questions, entryKey, existing,
       weather: draft.weather,
       temperature: draft.temperature,
       breakfast: draft.breakfast.trim(),
-      lunchBuddy: draft.lunchBuddy.trim(),
       mood: draft.mood,
       selfie: draft.selfie,
       selfiePrompt: draft.selfiePrompt,
@@ -49,7 +48,12 @@ export default function Step4Celebration({ draft, questions, entryKey, existing,
       answers: {
         mc: { q: questions.mc.q, options: questions.mc.options, choice: draft.mc },
         reflection: { q: questions.reflection, text: draft.reflection.trim() },
+        reflection2: { q: questions.reflection2, text: draft.reflection2.trim() },
         fun: { q: questions.fun, text: draft.fun.trim() },
+        favorites: [
+          { q: questions.fav1, text: draft.fav1.trim() },
+          { q: questions.fav2, text: draft.fav2.trim() },
+        ],
       },
       createdAt: existing?.createdAt ?? Date.now(),
       updatedAt: Date.now(),
@@ -143,7 +147,6 @@ export default function Step4Celebration({ draft, questions, entryKey, existing,
             </p>
             {draft.breakfast && <p>🍽️ Breakfast: {draft.breakfast}</p>}
             <p>🌡️ {draft.temperature}°F outside</p>
-            {draft.lunchBuddy && <p>🧑‍🤝‍🧑 Lunch with: {draft.lunchBuddy}</p>}
             <p className="mt-1 text-sm italic text-slate-400">"{draft.selfiePrompt}"</p>
           </div>
         </div>
@@ -162,9 +165,26 @@ export default function Step4Celebration({ draft, questions, entryKey, existing,
           </div>
           <div>
             <p className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
+              {questions.reflection2}
+            </p>
+            <p className="font-bold text-slate-700">{draft.reflection2}</p>
+          </div>
+          <div>
+            <p className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
               {questions.fun}
             </p>
             <p className="font-bold text-slate-700">{draft.fun}</p>
+          </div>
+          <div>
+            <p className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
+              ⭐ Quick favorites
+            </p>
+            <p className="font-bold text-slate-700">
+              {questions.fav1} — {draft.fav1}
+            </p>
+            <p className="font-bold text-slate-700">
+              {questions.fav2} — {draft.fav2}
+            </p>
           </div>
         </div>
       </div>

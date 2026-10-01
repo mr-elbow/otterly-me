@@ -4,7 +4,7 @@ import Step1Vitals from './Step1Vitals.jsx'
 import Step2Selfie from './Step2Selfie.jsx'
 import Step3Questions from './Step3Questions.jsx'
 import Step4Celebration from './Step4Celebration.jsx'
-import { MC_QUESTIONS, REFLECTION_QUESTIONS, FUN_QUESTIONS, SELFIE_PROMPTS } from '../../data/banks.js'
+import { MC_QUESTIONS, REFLECTION_QUESTIONS, FUN_QUESTIONS, FAVORITES_QUESTIONS, SELFIE_PROMPTS } from '../../data/banks.js'
 import { pickForDay, todayKey } from '../../lib/storage.js'
 
 const STEP_META = [
@@ -28,7 +28,10 @@ export default function Wizard({ store, onSave, onExit }) {
       existing?.questions ?? {
         mc: pickForDay(MC_QUESTIONS),
         reflection: pickForDay(REFLECTION_QUESTIONS, 5),
+        reflection2: pickForDay(REFLECTION_QUESTIONS, 9),
         fun: pickForDay(FUN_QUESTIONS, 11),
+        fav1: pickForDay(FAVORITES_QUESTIONS, 2),
+        fav2: pickForDay(FAVORITES_QUESTIONS, 8),
       },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
@@ -38,13 +41,15 @@ export default function Wizard({ store, onSave, onExit }) {
     weather: existing?.weather ?? '',
     temperature: existing?.temperature ?? 70,
     breakfast: existing?.breakfast ?? '',
-    lunchBuddy: existing?.lunchBuddy ?? '',
     mood: existing?.mood ?? '',
     selfie: existing?.selfie ?? null,
     selfiePrompt: existing?.selfiePrompt ?? randomPrompt(),
     mc: existing?.answers?.mc?.choice ?? '',
     reflection: existing?.answers?.reflection?.text ?? '',
+    reflection2: existing?.answers?.reflection2?.text ?? '',
     fun: existing?.answers?.fun?.text ?? '',
+    fav1: existing?.answers?.favorites?.[0]?.text ?? '',
+    fav2: existing?.answers?.favorites?.[1]?.text ?? '',
   }))
   const [step, setStep] = useState(1)
   const [nudge, setNudge] = useState('')
@@ -53,7 +58,14 @@ export default function Wizard({ store, onSave, onExit }) {
     if (step === 1) return draft.weather !== '' && draft.mood !== ''
     if (step === 2) return true // selfie is optional — skipping is okay
     if (step === 3)
-      return draft.mc !== '' && draft.reflection.trim() !== '' && draft.fun.trim() !== ''
+      return (
+        draft.mc !== '' &&
+        draft.reflection.trim() !== '' &&
+        draft.reflection2.trim() !== '' &&
+        draft.fun.trim() !== '' &&
+        draft.fav1.trim() !== '' &&
+        draft.fav2.trim() !== ''
+      )
     return true
   }
 
@@ -62,7 +74,7 @@ export default function Wizard({ store, onSave, onExit }) {
       setNudge(
         step === 1
           ? 'Pick the weather and your mood to keep going! 🌤️'
-          : 'Answer all three questions to keep going! 💭',
+          : 'Answer all the questions to keep going! 💭',
       )
       return
     }

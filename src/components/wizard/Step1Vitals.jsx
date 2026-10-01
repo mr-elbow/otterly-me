@@ -1,4 +1,4 @@
-import { CloudSun, Croissant, Smile, Thermometer, Users } from 'lucide-react'
+import { CloudSun, Croissant, Smile, Thermometer } from 'lucide-react'
 import { WEATHER_OPTIONS, MOOD_OPTIONS, BREAKFAST_SUGGESTIONS } from '../../data/banks.js'
 
 function tempEmoji(t) {
@@ -53,8 +53,8 @@ export default function Step1Vitals({ draft, setDraft }) {
           </div>
           <input
             type="range"
-            min={-20}
-            max={110}
+            min={0}
+            max={100}
             step={1}
             value={draft.temperature}
             onChange={(e) => set({ temperature: Number(e.target.value) })}
@@ -93,21 +93,6 @@ export default function Step1Vitals({ draft, setDraft }) {
             </button>
           ))}
         </div>
-      </div>
-
-      {/* Lunch buddy */}
-      <div>
-        <label className="mb-2 flex items-center gap-2 font-display text-xl font-extrabold text-otter-800">
-          <Users className="h-6 w-6 text-otter-600" /> Who did you sit with at lunch?
-        </label>
-        <input
-          type="text"
-          value={draft.lunchBuddy}
-          onChange={(e) => set({ lunchBuddy: e.target.value })}
-          placeholder="My best friend Sam…"
-          maxLength={80}
-          className="input-chunky"
-        />
       </div>
 
       {/* Mood picker */}

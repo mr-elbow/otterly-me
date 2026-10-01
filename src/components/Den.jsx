@@ -90,14 +90,6 @@ export default function Den({ store, onBack, onDelete }) {
                 <dd className="font-display text-xl font-bold text-slate-700">{e.breakfast}</dd>
               </div>
             )}
-            {e.lunchBuddy && (
-              <div className="rounded-2xl bg-otter-50 p-4">
-                <dt className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
-                  🧑‍🤝‍🧑 Sat with at lunch
-                </dt>
-                <dd className="font-display text-xl font-bold text-slate-700">{e.lunchBuddy}</dd>
-              </div>
-            )}
             <div className="rounded-2xl bg-otter-50 p-4">
               <dt className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
                 {e.answers.mc.q}
@@ -112,12 +104,32 @@ export default function Den({ store, onBack, onDelete }) {
               </dt>
               <dd className="mt-1 font-bold text-slate-700">{e.answers.reflection.text}</dd>
             </div>
+            {e.answers.reflection2 && (
+              <div className="rounded-2xl bg-otter-50 p-4">
+                <dt className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
+                  {e.answers.reflection2.q}
+                </dt>
+                <dd className="mt-1 font-bold text-slate-700">{e.answers.reflection2.text}</dd>
+              </div>
+            )}
             <div className="rounded-2xl bg-otter-50 p-4">
               <dt className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
                 {e.answers.fun.q}
               </dt>
               <dd className="mt-1 font-bold text-slate-700">{e.answers.fun.text}</dd>
             </div>
+            {e.answers.favorites?.length > 0 && (
+              <div className="rounded-2xl bg-otter-50 p-4">
+                <dt className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
+                  ⭐ Quick favorites
+                </dt>
+                {e.answers.favorites.map((f, i) => (
+                  <dd key={i} className="mt-1 font-bold text-slate-700">
+                    {f.q} — <span className="text-otter-700">{f.text}</span>
+                  </dd>
+                ))}
+              </div>
+            )}
           </dl>
         </article>
       </div>

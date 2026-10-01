@@ -70,7 +70,6 @@ export default function Home({ store, onStartJournal, onOpenDen }) {
               {todayWeather ? ` · ${todayWeather.emoji} ${todayWeather.label}` : ''}
               {today.temperature != null ? ` · ${today.temperature}°F` : ''}
               {today.breakfast ? ` · Breakfast: ${today.breakfast}` : ''}
-              {today.lunchBuddy ? ` · Lunch with ${today.lunchBuddy}` : ''}
             </p>
             <p className="mt-1 text-sm font-semibold text-slate-400">
               Tap the journal button above if you want to add or change anything.

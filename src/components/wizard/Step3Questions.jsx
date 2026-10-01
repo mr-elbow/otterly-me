@@ -1,4 +1,4 @@
-import { ListChecks, PenLine, PartyPopper } from 'lucide-react'
+import { ListChecks, PenLine, PartyPopper, Heart } from 'lucide-react'
 
 export default function Step3Questions({ draft, setDraft, questions }) {
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
@@ -6,7 +6,7 @@ export default function Step3Questions({ draft, setDraft, questions }) {
   return (
     <div className="space-y-8">
       <p className="text-center text-lg font-semibold text-slate-500">
-        Three questions, picked fresh just for today! 💭
+        Today's questions, picked fresh just for you! 💭
       </p>
 
       {/* Multiple choice */}
@@ -53,6 +53,22 @@ export default function Step3Questions({ draft, setDraft, questions }) {
         />
       </div>
 
+      {/* Reflection 2 */}
+      <div className="rounded-2xl bg-otter-50 p-5">
+        <p className="mb-3 flex items-start gap-2 font-display text-xl font-extrabold text-otter-800">
+          <PenLine className="mt-1 h-6 w-6 shrink-0 text-otter-600" />
+          {questions.reflection2}
+        </p>
+        <textarea
+          value={draft.reflection2}
+          onChange={(e) => set({ reflection2: e.target.value })}
+          placeholder="Write a sentence or two…"
+          rows={3}
+          maxLength={500}
+          className="input-chunky resize-none"
+        />
+      </div>
+
       {/* Fun prompt */}
       <div className="rounded-2xl bg-otter-50 p-5">
         <p className="mb-3 flex items-start gap-2 font-display text-xl font-extrabold text-otter-800">
@@ -66,6 +82,34 @@ export default function Step3Questions({ draft, setDraft, questions }) {
           rows={3}
           maxLength={500}
           className="input-chunky resize-none"
+        />
+      </div>
+
+      {/* Quick favorites */}
+      <div className="rounded-2xl bg-otter-50 p-5">
+        <p className="mb-1 flex items-center gap-2 font-display text-xl font-extrabold text-otter-800">
+          <Heart className="h-6 w-6 text-otter-600" /> Quick favorites
+        </p>
+        <p className="mb-4 text-sm font-bold text-slate-400">
+          Answer in just a word or two — fun to look back on these later!
+        </p>
+        <label className="mb-1 block font-bold text-slate-600">{questions.fav1}</label>
+        <input
+          type="text"
+          value={draft.fav1}
+          onChange={(e) => set({ fav1: e.target.value })}
+          placeholder="Type it here…"
+          maxLength={80}
+          className="input-chunky"
+        />
+        <label className="mb-1 mt-4 block font-bold text-slate-600">{questions.fav2}</label>
+        <input
+          type="text"
+          value={draft.fav2}
+          onChange={(e) => set({ fav2: e.target.value })}
+          placeholder="Type it here…"
+          maxLength={80}
+          className="input-chunky"
         />
       </div>
     </div>
