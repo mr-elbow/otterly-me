@@ -1,22 +1,6 @@
 import { CloudSun, Croissant, Smile, Thermometer } from 'lucide-react'
 import { WEATHER_OPTIONS, MOOD_OPTIONS, BREAKFAST_SUGGESTIONS } from '../../data/banks.js'
-
-function tempEmoji(t) {
-  if (t <= 32) return '🥶'
-  if (t <= 50) return '🧤'
-  if (t <= 65) return '🧥'
-  if (t <= 85) return '🩳'
-  return '🥵'
-}
-
-// Clothing guide stops shown under the slider, cold → hot
-const TEMP_STOPS = [
-  { temp: 0, emoji: '🥶', label: 'Freezing' },
-  { temp: 25, emoji: '🧤', label: 'Chilly' },
-  { temp: 50, emoji: '🧥', label: 'Sweater' },
-  { temp: 75, emoji: '🩳🎽', label: 'Shorts & tank' },
-  { temp: 100, emoji: '🥵', label: 'Scorching' },
-]
+import { tempWord, tempEmoji, TEMP_STOPS } from '../../lib/weather.js'
 
 export default function Step1Vitals({ draft, setDraft }) {
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
@@ -51,14 +35,19 @@ export default function Step1Vitals({ draft, setDraft }) {
       {/* Temperature slider */}
       <div>
         <label className="mb-2 flex items-center gap-2 font-display text-xl font-extrabold text-otter-800">
-          <Thermometer className="h-6 w-6 text-otter-600" /> How hot or cold is it outside?
+          <Thermometer className="h-6 w-6 text-otter-600" /> How does it feel outside?
         </label>
         <div className="rounded-2xl bg-otter-50 p-4">
           <div className="flex items-center justify-center gap-3">
-            <span className="text-5xl">{tempEmoji(draft.temperature)}</span>
-            <span className="font-display text-4xl font-extrabold text-otter-800">
-              {draft.temperature}°F
-            </span>
+            <span className="text-6xl">{tempEmoji(draft.temperature)}</span>
+            <div className="text-left">
+              <div className="font-display text-4xl font-extrabold text-otter-800">
+                {tempWord(draft.temperature)}!
+              </div>
+              <div className="text-sm font-bold text-slate-400">
+                {draft.temperature}°F
+              </div>
+            </div>
           </div>
           <input
             type="range"
@@ -67,15 +56,18 @@ export default function Step1Vitals({ draft, setDraft }) {
             step={1}
             value={draft.temperature}
             onChange={(e) => set({ temperature: Number(e.target.value) })}
-            aria-label="Outside temperature in Fahrenheit"
+            aria-label="How the weather feels, from freezing to scorching"
             className="mt-3 w-full accent-teal-500"
           />
           <div className="mt-2 flex items-start justify-between">
             {TEMP_STOPS.map((s) => {
               const active = Math.round(draft.temperature / 25) * 25 === s.temp
               return (
-                <div
+                <button
                   key={s.temp}
+                  type="button"
+                  onClick={() => set({ temperature: s.temp })}
+                  aria-label={`${s.label}, ${s.temp} degrees`}
                   className={`flex w-16 flex-col items-center rounded-xl p-1 transition-all ${
                     active ? 'scale-110 bg-white shadow-pop' : 'opacity-60'
                   }`}
@@ -84,10 +76,13 @@ export default function Step1Vitals({ draft, setDraft }) {
                   <span className="mt-1 text-center text-[11px] font-extrabold leading-tight text-slate-500">
                     {s.label}
                   </span>
-                </div>
+                </button>
               )
             })}
           </div>
+          <p className="mt-2 text-center text-sm font-bold text-slate-400">
+            Slide it — or just tap how it feels! 👆
+          </p>
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import OtterMascot from '../OtterMascot.jsx'
 import { upsertEntry } from '../../lib/storage.js'
 import { MOOD_OPTIONS, WEATHER_OPTIONS } from '../../data/banks.js'
 import { historyFactFor, historyDateLabel } from '../../data/history.js'
+import { tempWord } from '../../lib/weather.js'
 
 const CONFETTI_COLORS = ['#14b8a6', '#fbbf24', '#f472b6', '#60a5fa', '#a78bfa', '#34d399', '#fb923c']
 
@@ -162,7 +163,7 @@ export default function Step4Celebration({ draft, questions, entryKey, existing,
               {mood?.emoji} {mood?.label} {weather?.emoji} {weather?.label}
             </p>
             {draft.breakfast && <p>🍽️ Breakfast: {draft.breakfast}</p>}
-            <p>🌡️ {draft.temperature}°F outside</p>
+            <p>🌡️ {tempWord(draft.temperature)} ({draft.temperature}°F)</p>
             <p className="mt-1 text-sm italic text-slate-400">"{draft.selfiePrompt}"</p>
           </div>
         </div>
