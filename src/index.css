@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Baloo 2', 'Comic Sans MS', 'Chalkboard SE', system-ui, sans-serif;
+  }
+  body {
+    @apply bg-otter-50 text-slate-800 antialiased;
+    background-image:
+      radial-gradient(circle at 15% 25%, rgba(45, 212, 191, 0.12) 0, transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(251, 191, 36, 0.12) 0, transparent 45%),
+      radial-gradient(circle at 50% 90%, rgba(45, 212, 191, 0.1) 0, transparent 50%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .btn-chunky {
+    @apply font-display font-bold rounded-2xl px-6 py-4 shadow-chunky transition-transform active:translate-y-1 active:shadow-none select-none;
+  }
+  .card {
+    @apply bg-white rounded-3xl shadow-chunky border-2 border-otter-100;
+  }
+  .input-chunky {
+    @apply w-full rounded-2xl border-2 border-otter-200 bg-otter-50 px-4 py-3 text-lg font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-otter-500 focus:bg-white transition-colors;
+  }
+  .mood-btn {
+    @apply rounded-2xl border-4 bg-white p-3 text-5xl transition-all shadow-chunky active:translate-y-1 active:shadow-none;
+  }
+}
+
+/* Wave divider decoration */
+.waves {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,60 C300,120 900,0 1200,60 L1200,120 L0,120 Z' fill='%2314b8a6' fill-opacity='0.18'/%3E%3C/svg%3E");
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+/* Confetti pieces on the celebration screen */
+.confetti-piece {
+  position: absolute;
+  top: -5vh;
+  animation: confetti-fall linear infinite;
+  pointer-events: none;
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0.5; }
+}
+
+/* Custom scrollbar for the Den */
+.den-scroll::-webkit-scrollbar { width: 10px; }
+.den-scroll::-webkit-scrollbar-track { background: #ccfbf1; border-radius: 999px; }
+.den-scroll::-webkit-scrollbar-thumb { background: #14b8a6; border-radius: 999px; }
