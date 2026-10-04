@@ -53,6 +53,44 @@ export default function Wizard({ store, onSave, onExit }) {
   const [step, setStep] = useState(1)
   const [nudge, setNudge] = useState('')
 
+  // Bonus questions added with the "+" button — each is { q, kind, text }.
+  // kind alternates: thoughtful, silly, thoughtful, silly…
+  const [extraQs, setExtraQs] = useState(() => existing?.extraQuestions ?? [])
+
+  const addExtraQuestion = () => {
+    // Alternate kinds based on what's already there, so removing an
+    // extra never breaks the thoughtful/silly cycle.
+    const reflectionCount = extraQs.filter((e) => e.kind === 'reflection').length
+    const kind = reflectionCount <= extraQs.length - reflectionCount ? 'reflection' : 'fun'
+    const bank = kind === 'reflection' ? REFLECTION_QUESTIONS : FUN_QUESTIONS
+    const used = new Set([
+      questions.mc.q,
+      questions.reflection,
+      questions.reflection2,
+      questions.fun,
+      questions.fav1,
+      questions.fav2,
+      ...extraQs.map((e) => e.q),
+    ])
+    let offset = kind === 'reflection' ? 13 : 17
+    let q = pickForDay(bank, offset + extraQs.length * 7)
+    let guard = 0
+    while (used.has(q) && guard < bank.length) {
+      offset += 1
+      q = pickForDay(bank, offset + extraQs.length * 7)
+      guard += 1
+    }
+    setExtraQs((prev) => [...prev, { q, kind, text: '' }])
+  }
+
+  const removeExtraQuestion = (index) => {
+    setExtraQs((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const setExtraText = (index, text) => {
+    setExtraQs((prev) => prev.map((e, i) => (i === index ? { ...e, text } : e)))
+  }
+
   const canContinue = () => {
     if (step === 1) return draft.weather !== '' && draft.mood !== ''
     if (step === 2) return true // selfie is optional — skipping is okay
@@ -63,7 +101,8 @@ export default function Wizard({ store, onSave, onExit }) {
         draft.reflection2.trim() !== '' &&
         draft.fun.trim() !== '' &&
         draft.fav1.trim() !== '' &&
-        draft.fav2.trim() !== ''
+        draft.fav2.trim() !== '' &&
+        extraQs.every((e) => e.text.trim() !== '')
       )
     return true
   }
@@ -127,11 +166,22 @@ export default function Wizard({ store, onSave, onExit }) {
       <div className="card mt-6 animate-pop-in p-6 sm:p-8" key={step}>
         {step === 1 && <Step1Vitals draft={draft} setDraft={setDraft} />}
         {step === 2 && <Step2Selfie draft={draft} setDraft={setDraft} />}
-        {step === 3 && <Step3Questions draft={draft} setDraft={setDraft} questions={questions} />}
+        {step === 3 && (
+          <Step3Questions
+            draft={draft}
+            setDraft={setDraft}
+            questions={questions}
+            extraQs={extraQs}
+            onAddExtra={addExtraQuestion}
+            onRemoveExtra={removeExtraQuestion}
+            onExtraText={setExtraText}
+          />
+        )}
         {step === 4 && (
           <Step4Celebration
             draft={draft}
             questions={questions}
+            extraQs={extraQs}
             entryKey={key}
             existing={existing}
             onSave={onSave}

@@ -1,6 +1,14 @@
-import { ListChecks, PenLine, PartyPopper, Heart } from 'lucide-react'
+import { ListChecks, PenLine, PartyPopper, Heart, Plus, X } from 'lucide-react'
 
-export default function Step3Questions({ draft, setDraft, questions }) {
+export default function Step3Questions({
+  draft,
+  setDraft,
+  questions,
+  extraQs,
+  onAddExtra,
+  onRemoveExtra,
+  onExtraText,
+}) {
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
 
   return (
@@ -111,6 +119,53 @@ export default function Step3Questions({ draft, setDraft, questions }) {
           maxLength={80}
           className="input-chunky"
         />
+      </div>
+
+      {/* Bonus questions added with "+" */}
+      {extraQs.map((e, i) => (
+        <div key={`${e.q}-${i}`} className="rounded-2xl bg-otter-50 p-5">
+          <div className="mb-3 flex items-start justify-between gap-2">
+            <p className="flex items-start gap-2 font-display text-xl font-extrabold text-otter-800">
+              {e.kind === 'reflection' ? (
+                <PenLine className="mt-1 h-6 w-6 shrink-0 text-otter-600" />
+              ) : (
+                <PartyPopper className="mt-1 h-6 w-6 shrink-0 text-otter-600" />
+              )}
+              {e.q}
+            </p>
+            <button
+              type="button"
+              onClick={() => onRemoveExtra(i)}
+              aria-label="Remove this question"
+              title="Remove this question"
+              className="shrink-0 rounded-full bg-white p-1.5 text-slate-300 shadow-sm transition-colors hover:text-red-400"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <textarea
+            value={e.text}
+            onChange={(ev) => onExtraText(i, ev.target.value)}
+            placeholder={e.kind === 'reflection' ? 'Write a sentence or two…' : 'Let your imagination run wild…'}
+            rows={3}
+            maxLength={500}
+            className="input-chunky resize-none"
+          />
+        </div>
+      ))}
+
+      {/* Add another question */}
+      <div>
+        <button
+          type="button"
+          onClick={onAddExtra}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl border-4 border-dashed border-otter-200 bg-white/60 p-5 font-display text-xl font-extrabold text-otter-500 transition-all hover:scale-[1.01] hover:border-otter-400 hover:text-otter-700 active:scale-[0.99]"
+        >
+          <Plus className="h-7 w-7" /> Add another question
+        </button>
+        <p className="mt-2 text-center text-sm font-bold text-slate-400">
+          Ollie will pick one for you — sometimes thoughtful, sometimes silly!
+        </p>
       </div>
     </div>
   )

@@ -122,6 +122,21 @@ export default function Den({ store, onBack, onDelete }) {
                 ))}
               </div>
             )}
+            {e.extraQuestions?.length > 0 && (
+              <div className="rounded-2xl bg-otter-50 p-4">
+                <dt className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
+                  ➕ Bonus questions
+                </dt>
+                {e.extraQuestions.map((x, i) => (
+                  <div key={i} className="mt-2">
+                    <dd className="text-sm font-extrabold text-otter-600">
+                      {x.kind === 'reflection' ? '💭' : '🎉'} {x.q}
+                    </dd>
+                    <dd className="font-bold text-slate-700">{x.text}</dd>
+                  </div>
+                ))}
+              </div>
+            )}
           </dl>
         </article>
       </div>

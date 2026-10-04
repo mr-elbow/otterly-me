@@ -11,7 +11,7 @@ const CONFETTI_COLORS = ['#14b8a6', '#fbbf24', '#f472b6', '#60a5fa', '#a78bfa', 
  * Step 4 — review, save, and celebrate. The entry object is assembled here
  * and persisted to localStorage via the onSave callback.
  */
-export default function Step4Celebration({ draft, questions, entryKey, existing, onSave, onDone }) {
+export default function Step4Celebration({ draft, questions, extraQs, entryKey, existing, onSave, onDone }) {
   const [saved, setSaved] = useState(false)
   const [saveError, setSaveError] = useState(false)
 
@@ -58,6 +58,7 @@ export default function Step4Celebration({ draft, questions, entryKey, existing,
           { q: questions.fav2, text: draft.fav2.trim() },
         ],
       },
+      extraQuestions: extraQs.map((e) => ({ q: e.q, kind: e.kind, text: e.text.trim() })),
       createdAt: existing?.createdAt ?? Date.now(),
       updatedAt: Date.now(),
     }
@@ -200,6 +201,14 @@ export default function Step4Celebration({ draft, questions, entryKey, existing,
               {questions.fav2} — {draft.fav2}
             </p>
           </div>
+          {extraQs.map((e, i) => (
+            <div key={`${e.q}-${i}`}>
+              <p className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
+                {e.kind === 'reflection' ? '💭' : '🎉'} {e.q}
+              </p>
+              <p className="font-bold text-slate-700">{e.text}</p>
+            </div>
+          ))}
         </div>
       </div>
 
