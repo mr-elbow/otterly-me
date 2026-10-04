@@ -137,6 +137,27 @@ export default function Den({ store, onBack, onDelete }) {
                 ))}
               </div>
             )}
+            {e.eveningQuestions?.length > 0 && (
+              <div className="rounded-2xl bg-otter-50 p-4">
+                <dt className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
+                  🌙 Bedtime thoughts
+                </dt>
+                {e.eveningQuestions.map((x, i) => (
+                  <div key={i} className="mt-2">
+                    <dd className="text-sm font-extrabold text-otter-600">{x.q}</dd>
+                    <dd className="font-bold text-slate-700">{x.text}</dd>
+                  </div>
+                ))}
+              </div>
+            )}
+            {e.freeText && (
+              <div className="rounded-2xl bg-otter-50 p-4">
+                <dt className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
+                  📝 Anything else
+                </dt>
+                <dd className="mt-1 font-bold text-slate-700">{e.freeText}</dd>
+              </div>
+            )}
           </dl>
         </article>
       </div>

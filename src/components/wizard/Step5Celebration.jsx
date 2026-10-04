@@ -8,12 +8,15 @@ import { historyFactFor, historyDateLabel } from '../../data/history.js'
 const CONFETTI_COLORS = ['#14b8a6', '#fbbf24', '#f472b6', '#60a5fa', '#a78bfa', '#34d399', '#fb923c']
 
 /**
- * Step 4 — review, save, and celebrate. The entry object is assembled here
+ * Step 5 — review, save, and celebrate. The entry object is assembled here
  * and persisted to localStorage via the onSave callback.
  */
-export default function Step4Celebration({ draft, questions, extraQs, entryKey, existing, onSave, onDone }) {
+export default function Step5Celebration({ draft, questions, extraQs, eveningQs, entryKey, existing, onSave, onDone }) {
   const [saved, setSaved] = useState(false)
   const [saveError, setSaveError] = useState(false)
+  // Pre-submit popup: 'idle' | 'ask' | 'write'
+  const [popup, setPopup] = useState('idle')
+  const [freeText, setFreeText] = useState(() => existing?.freeText ?? '')
 
   const confetti = useMemo(
     () =>
@@ -32,7 +35,7 @@ export default function Step4Celebration({ draft, questions, extraQs, entryKey, 
   const mood = MOOD_OPTIONS.find((m) => m.id === draft.mood)
   const weather = WEATHER_OPTIONS.find((w) => w.id === draft.weather)
 
-  const handleSave = () => {
+  const doSave = () => {
     const entry = {
       date: entryKey,
       weather: draft.weather,
@@ -59,6 +62,10 @@ export default function Step4Celebration({ draft, questions, extraQs, entryKey, 
         ],
       },
       extraQuestions: extraQs.map((e) => ({ q: e.q, kind: e.kind, text: e.text.trim() })),
+      eveningQuestions: eveningQs
+        .filter((e) => e.text.trim() !== '')
+        .map((e) => ({ q: e.q, kind: e.kind, text: e.text.trim() })),
+      freeText: freeText.trim(),
       createdAt: existing?.createdAt ?? Date.now(),
       updatedAt: Date.now(),
     }
@@ -66,6 +73,7 @@ export default function Step4Celebration({ draft, questions, extraQs, entryKey, 
     if (ok) {
       setSaved(true)
       setSaveError(false)
+      setPopup('idle')
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
       setSaveError(true)
@@ -209,6 +217,24 @@ export default function Step4Celebration({ draft, questions, extraQs, entryKey, 
               <p className="font-bold text-slate-700">{e.text}</p>
             </div>
           ))}
+          {eveningQs
+            .filter((e) => e.text.trim() !== '')
+            .map((e, i) => (
+              <div key={`eve-${i}`}>
+                <p className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
+                  🌙 {e.q}
+                </p>
+                <p className="font-bold text-slate-700">{e.text}</p>
+              </div>
+            ))}
+          {freeText.trim() !== '' && (
+            <div>
+              <p className="text-sm font-extrabold uppercase tracking-wide text-otter-600">
+                📝 Anything else
+              </p>
+              <p className="font-bold text-slate-700">{freeText}</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -222,7 +248,7 @@ export default function Step4Celebration({ draft, questions, extraQs, entryKey, 
 
       <div className="text-center">
         <button
-          onClick={handleSave}
+          onClick={() => setPopup('ask')}
           className="btn-chunky inline-flex items-center gap-2 bg-splash-400 text-2xl text-otter-900 hover:bg-splash-500"
         >
           <Save className="h-7 w-7" /> Save my journal!
@@ -231,6 +257,73 @@ export default function Step4Celebration({ draft, questions, extraQs, entryKey, 
           <PartyPopper className="h-4 w-4" /> Something worth celebrating is coming…
         </p>
       </div>
+
+      {/* Pre-submit popup */}
+      {popup !== 'idle' && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-otter-900/50 p-4"
+          onClick={() => setPopup('idle')}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="card w-full max-w-md animate-pop-in p-6 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {popup === 'ask' ? (
+              <>
+                <OtterMascot size={76} className="mx-auto" />
+                <h3 className="mt-3 font-display text-2xl font-extrabold text-otter-800">
+                  Is there anything else you want to journal about today?
+                </h3>
+                <div className="mt-5 grid gap-3">
+                  <button
+                    onClick={() => setPopup('write')}
+                    className="btn-chunky bg-splash-400 text-xl text-otter-900 hover:bg-splash-500"
+                  >
+                    Yes, one more thing ✏️
+                  </button>
+                  <button
+                    onClick={doSave}
+                    className="btn-chunky bg-otter-500 text-xl text-white hover:bg-otter-600"
+                  >
+                    No, save it! 💾
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h3 className="font-display text-2xl font-extrabold text-otter-800">
+                  Your space — write anything! ✏️
+                </h3>
+                <textarea
+                  value={freeText}
+                  onChange={(e) => setFreeText(e.target.value)}
+                  placeholder="Anything on your mind…"
+                  rows={5}
+                  maxLength={1000}
+                  autoFocus
+                  className="input-chunky mt-4 resize-none text-left"
+                />
+                <div className="mt-4 grid gap-3">
+                  <button
+                    onClick={doSave}
+                    className="btn-chunky inline-flex items-center justify-center gap-2 bg-splash-400 text-xl text-otter-900 hover:bg-splash-500"
+                  >
+                    <Save className="h-6 w-6" /> Save my journal!
+                  </button>
+                  <button
+                    onClick={() => setPopup('ask')}
+                    className="btn-chunky bg-white text-lg text-slate-500"
+                  >
+                    Back
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

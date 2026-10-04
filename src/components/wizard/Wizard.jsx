@@ -3,14 +3,16 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import Step1Vitals from './Step1Vitals.jsx'
 import Step2Selfie from './Step2Selfie.jsx'
 import Step3Questions from './Step3Questions.jsx'
-import Step4Celebration from './Step4Celebration.jsx'
-import { MC_QUESTIONS, REFLECTION_QUESTIONS, FUN_QUESTIONS, FAVORITES_QUESTIONS, SELFIE_PROMPTS } from '../../data/banks.js'
+import Step4Evening from './Step4Evening.jsx'
+import Step5Celebration from './Step5Celebration.jsx'
+import { MC_QUESTIONS, REFLECTION_QUESTIONS, FUN_QUESTIONS, FAVORITES_QUESTIONS, EVENING_QUESTIONS, SELFIE_PROMPTS } from '../../data/banks.js'
 import { pickForDay, todayKey } from '../../lib/storage.js'
 
 const STEP_META = [
   { title: 'The Vitals', emoji: '🌤️' },
   { title: 'Selfie Time', emoji: '📸' },
   { title: "Today's Questions", emoji: '💭' },
+  { title: 'Bedtime', emoji: '🌙' },
   { title: 'Celebrate!', emoji: '🎉' },
 ]
 
@@ -18,7 +20,7 @@ function randomPrompt() {
   return SELFIE_PROMPTS[Math.floor(Math.random() * SELFIE_PROMPTS.length)]
 }
 
-export default function Wizard({ store, onSave, onExit }) {
+export default function Wizard({ store, onSave, onExit, initialStep = 1 }) {
   const key = todayKey()
   const existing = store.entries[key]
 
@@ -55,15 +57,20 @@ export default function Wizard({ store, onSave, onExit }) {
 
   // Bonus questions added with the "+" button — each is { q, kind, text }.
   // kind alternates: thoughtful, silly, thoughtful, silly…
+  // Bonus questions added with the "+" button — each is { q, kind, text }.
+  // kind alternates: thoughtful, silly, thoughtful, silly…
   const [extraQs, setExtraQs] = useState(() => existing?.extraQuestions ?? [])
 
-  const addExtraQuestion = () => {
-    // Alternate kinds based on what's already there, so removing an
-    // extra never breaks the thoughtful/silly cycle.
-    const reflectionCount = extraQs.filter((e) => e.kind === 'reflection').length
-    const kind = reflectionCount <= extraQs.length - reflectionCount ? 'reflection' : 'fun'
-    const bank = kind === 'reflection' ? REFLECTION_QUESTIONS : FUN_QUESTIONS
-    const used = new Set([
+  // Bedtime page: starts with one evening question; more can be added.
+  // Nothing here is required. Reopening a saved entry keeps answered ones.
+  const [eveningQs, setEveningQs] = useState(() =>
+    existing?.eveningQuestions?.length
+      ? existing.eveningQuestions
+      : [{ q: pickForDay(EVENING_QUESTIONS, 3), kind: 'evening', text: '' }],
+  )
+
+  const usedQuestionTexts = () =>
+    new Set([
       questions.mc.q,
       questions.reflection,
       questions.reflection2,
@@ -71,25 +78,37 @@ export default function Wizard({ store, onSave, onExit }) {
       questions.fav1,
       questions.fav2,
       ...extraQs.map((e) => e.q),
+      ...eveningQs.map((e) => e.q),
     ])
+
+  // Pick the next bonus question for a list, alternating thoughtful/silly
+  // based on what's already there so removals never break the cycle.
+  const pickBonusQuestion = (list) => {
+    const reflectionCount = list.filter((e) => e.kind === 'reflection').length
+    const funCount = list.filter((e) => e.kind === 'fun').length
+    const kind = reflectionCount <= funCount ? 'reflection' : 'fun'
+    const bank = kind === 'reflection' ? REFLECTION_QUESTIONS : FUN_QUESTIONS
+    const used = usedQuestionTexts()
     let offset = kind === 'reflection' ? 13 : 17
-    let q = pickForDay(bank, offset + extraQs.length * 7)
+    let q = pickForDay(bank, offset + list.length * 7)
     let guard = 0
     while (used.has(q) && guard < bank.length) {
       offset += 1
-      q = pickForDay(bank, offset + extraQs.length * 7)
+      q = pickForDay(bank, offset + list.length * 7)
       guard += 1
     }
-    setExtraQs((prev) => [...prev, { q, kind, text: '' }])
+    return { q, kind, text: '' }
   }
 
-  const removeExtraQuestion = (index) => {
-    setExtraQs((prev) => prev.filter((_, i) => i !== index))
-  }
-
-  const setExtraText = (index, text) => {
+  const addExtraQuestion = () => setExtraQs((prev) => [...prev, pickBonusQuestion(prev)])
+  const removeExtraQuestion = (index) => setExtraQs((prev) => prev.filter((_, i) => i !== index))
+  const setExtraText = (index, text) =>
     setExtraQs((prev) => prev.map((e, i) => (i === index ? { ...e, text } : e)))
-  }
+
+  const addEveningQuestion = () => setEveningQs((prev) => [...prev, pickBonusQuestion(prev)])
+  const removeEveningQuestion = (index) => setEveningQs((prev) => prev.filter((_, i) => i !== index))
+  const setEveningText = (index, text) =>
+    setEveningQs((prev) => prev.map((e, i) => (i === index ? { ...e, text } : e)))
 
   const canContinue = () => {
     if (step === 1) return draft.weather !== '' && draft.mood !== ''
@@ -104,6 +123,7 @@ export default function Wizard({ store, onSave, onExit }) {
         draft.fav2.trim() !== '' &&
         extraQs.every((e) => e.text.trim() !== '')
       )
+    if (step === 4) return true // bedtime page is all optional
     return true
   }
 
@@ -117,7 +137,7 @@ export default function Wizard({ store, onSave, onExit }) {
       return
     }
     setNudge('')
-    setStep((s) => Math.min(4, s + 1))
+    setStep((s) => Math.min(5, s + 1))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -178,10 +198,19 @@ export default function Wizard({ store, onSave, onExit }) {
           />
         )}
         {step === 4 && (
-          <Step4Celebration
+          <Step4Evening
+            eveningQs={eveningQs}
+            onAdd={addEveningQuestion}
+            onRemove={removeEveningQuestion}
+            onText={setEveningText}
+          />
+        )}
+        {step === 5 && (
+          <Step5Celebration
             draft={draft}
             questions={questions}
             extraQs={extraQs}
+            eveningQs={eveningQs}
             entryKey={key}
             existing={existing}
             onSave={onSave}
@@ -191,7 +220,7 @@ export default function Wizard({ store, onSave, onExit }) {
       </div>
 
       {/* Nav buttons */}
-      {step < 4 && (
+      {step < 5 && (
         <div className="mt-6">
           {nudge && (
             <p className="mb-3 animate-pop-in rounded-2xl bg-splash-100 px-4 py-3 text-center font-bold text-orange-700">

@@ -299,3 +299,17 @@ export const FAVORITES_QUESTIONS = [
   'What is your favorite thing to do on the weekend?',
   'What is your favorite breakfast food?',
 ]
+
+// Bedtime questions — the optional 4th page for evening journaling.
+export const EVENING_QUESTIONS = [
+  'What is one thing from today you want to remember when you are grown up?',
+  'Is there anything on your mind as you get ready for bed?',
+  'What are you thankful for as the day ends?',
+  'What do you hope tomorrow brings?',
+  'What was the coziest moment of your day?',
+  'If you could replay one moment from today, which would it be?',
+  'What is one kind thing you want to do tomorrow?',
+  'What are you dreaming about tonight?',
+  'What made today special?',
+  'What is something you want to tell your future self about today?',
+]

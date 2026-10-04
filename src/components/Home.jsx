@@ -44,7 +44,7 @@ export default function Home({ store, onStartJournal, onOpenDen }) {
         {/* Big action buttons */}
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <button
-            onClick={onStartJournal}
+            onClick={() => onStartJournal(1)}
             className="btn-chunky flex items-center justify-center gap-3 bg-otter-500 text-2xl text-white hover:bg-otter-600"
           >
             <PencilLine className="h-7 w-7" />
@@ -73,6 +73,12 @@ export default function Home({ store, onStartJournal, onOpenDen }) {
             <p className="mt-1 text-sm font-semibold text-slate-400">
               Tap the journal button above if you want to add or change anything.
             </p>
+            <button
+              onClick={() => onStartJournal(4)}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-100 px-4 py-3 font-display text-lg font-extrabold text-indigo-700 transition-transform hover:scale-[1.02] active:scale-95"
+            >
+              🌙 Add bedtime thoughts
+            </button>
           </div>
         )}
       </section>

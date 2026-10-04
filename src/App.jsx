@@ -9,6 +9,15 @@ import { loadStore, saveStore, deleteEntry } from './lib/storage.js'
 export default function App() {
   const [view, setView] = useState('home') // home | wizard | den
   const [store, setStore] = useState(loadStore)
+  // Which wizard step to open at (1 = start, 4 = jump to bedtime page)
+  const [wizardStep, setWizardStep] = useState(1)
+  const [wizardKey, setWizardKey] = useState(0)
+
+  const openWizard = (step = 1) => {
+    setWizardStep(step)
+    setWizardKey((k) => k + 1)
+    setView('wizard')
+  }
 
   // Persist helper: writes to state + localStorage, returns success boolean.
   const persist = useCallback((next) => {
@@ -58,12 +67,18 @@ export default function App() {
         {view === 'home' && (
           <Home
             store={store}
-            onStartJournal={() => setView('wizard')}
+            onStartJournal={openWizard}
             onOpenDen={() => setView('den')}
           />
         )}
         {view === 'wizard' && (
-          <Wizard store={store} onSave={handleWizardSave} onExit={goHome} />
+          <Wizard
+            key={wizardKey}
+            initialStep={wizardStep}
+            store={store}
+            onSave={handleWizardSave}
+            onExit={goHome}
+          />
         )}
         {view === 'den' && (
           <Den store={store} onBack={goHome} onDelete={handleDelete} />
