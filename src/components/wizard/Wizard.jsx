@@ -52,7 +52,7 @@ export default function Wizard({ store, onSave, onExit, initialStep = 1 }) {
     fav1: existing?.answers?.favorites?.[0]?.text ?? '',
     fav2: existing?.answers?.favorites?.[1]?.text ?? '',
   }))
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(initialStep)
   const [nudge, setNudge] = useState('')
 
   // Bonus questions added with the "+" button — each is { q, kind, text }.
