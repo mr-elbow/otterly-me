@@ -155,6 +155,11 @@ export const REFLECTION_QUESTIONS = [
   'Why is it important to believe in yourself?',
   'What does being happy mean to you?',
   'Which activities make you feel the most like yourself?',
+  'Who did you sit with at lunch today, and what did you talk about?',
+  'Who did you play with at recess, and what game did you play?',
+  'Did you help anyone today, or did anyone help you?',
+  'Tell me one thing you learned today that you didn\'t know yesterday.',
+  'What was your favorite part of the day, and what was your least favorite?',
 ]
 
 // Silly & imaginative questions — many inspired by popular parenting resources
@@ -197,6 +202,9 @@ export const FUN_QUESTIONS = [
   'If your pet could talk for one minute a day, what would you ask them?',
   'If you met someone from another planet, what would you talk about?',
   'What is the most hilarious thing your teacher could do tomorrow?',
+  'What made you laugh today?',
+  'What was the weirdest or coolest thing that happened today?',
+  'If an alien spaceship beamed someone up from your class, who would you want it to be?',
 ]
 
 export const BREAKFAST_ICONS = ['🥞', '🥣', '🍳', '🥯', '🧇', '🍎', '🥛', '🍞']
