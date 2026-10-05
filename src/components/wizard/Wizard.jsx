@@ -5,7 +5,7 @@ import Step2Selfie from './Step2Selfie.jsx'
 import Step3Questions from './Step3Questions.jsx'
 import Step4Evening from './Step4Evening.jsx'
 import Step5Celebration from './Step5Celebration.jsx'
-import { MC_QUESTIONS, REFLECTION_QUESTIONS, FUN_QUESTIONS, FAVORITES_QUESTIONS, EVENING_QUESTIONS, SELFIE_PROMPTS } from '../../data/banks.js'
+import { MC_QUESTIONS, REFLECTION_QUESTIONS, FUN_QUESTIONS, FAVORITES_QUESTIONS, SELFIE_PROMPTS } from '../../data/banks.js'
 import { pickForDay, todayKey } from '../../lib/storage.js'
 
 const STEP_META = [
@@ -19,6 +19,9 @@ const STEP_META = [
 function randomPrompt() {
   return SELFIE_PROMPTS[Math.floor(Math.random() * SELFIE_PROMPTS.length)]
 }
+
+// The bedtime page asks this same question every single day.
+const BEDTIME_QUESTION = 'What is one thing from today you want to remember when you are grown up?'
 
 export default function Wizard({ store, onSave, onExit, initialStep = 1 }) {
   const key = todayKey()
@@ -66,7 +69,7 @@ export default function Wizard({ store, onSave, onExit, initialStep = 1 }) {
   const [eveningQs, setEveningQs] = useState(() =>
     existing?.eveningQuestions?.length
       ? existing.eveningQuestions
-      : [{ q: pickForDay(EVENING_QUESTIONS, 3), kind: 'evening', text: '' }],
+      : [{ q: BEDTIME_QUESTION, kind: 'evening', text: '' }],
   )
 
   const usedQuestionTexts = () =>

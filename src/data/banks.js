@@ -94,6 +94,62 @@ export const MC_QUESTIONS = [
     q: 'If your stuffed animal came to life, what would it say first?',
     options: ['"Let\'s play!" 🧸', '"I\'m hungry!" 🍪', '"Tell me a secret!" 🤫', '"Nap time!" 😴'],
   },
+  {
+    q: 'If you could travel anywhere in the world tomorrow, where would you go?',
+    options: ['Hawaii 🏝️', 'Disney World 🏰', 'The mountains 🏔️', 'New York City 🗽'],
+  },
+  {
+    q: 'What would you ride into school on?',
+    options: ['A dragon 🐉', 'A hoverboard 🛹', 'A unicorn 🦄', 'A rocket 🚀'],
+  },
+  {
+    q: 'Pick a super snack:',
+    options: ['Endless popcorn 🍿', 'A chocolate fountain 🍫', 'Rainbow fruit 🍓', 'A giant pretzel 🥨'],
+  },
+  {
+    q: 'You get one wish — what do you wish for?',
+    options: ['Fly anywhere ✈️', 'A million puppies 🐶', 'Never-ending summer ☀️', 'Be in a movie 🎬'],
+  },
+  {
+    q: 'Which holiday is the best?',
+    options: ['Halloween 🎃', 'Christmas 🎄', 'Your birthday 🎂', '4th of July 🎆'],
+  },
+  {
+    q: 'What should your classroom pet be?',
+    options: ['A hamster 🐹', 'A lizard 🦎', 'A parrot 🦜', 'A tiny dinosaur 🦕'],
+  },
+  {
+    q: 'Pick a rainy-day activity:',
+    options: ['Build a fort 🏰', 'Bake cookies 🍪', 'Board games 🎲', 'Blanket and a book 📖'],
+  },
+  {
+    q: 'If you had a time machine, where would you go first?',
+    options: ['Dinosaur times 🦕', 'The future 🤖', 'Ancient Egypt 🏛️', 'The Wild West 🤠'],
+  },
+  {
+    q: 'What is the best pizza topping?',
+    options: ['Pepperoni 🍕', 'Extra cheese 🧀', 'Pineapple 🍍', 'Just breadsticks 🥖'],
+  },
+  {
+    q: 'Choose your adventure:',
+    options: ['Explore a cave 🦇', 'Sail the ocean 🌊', 'Climb a volcano 🌋', 'Visit the moon 🌙'],
+  },
+  {
+    q: 'What would you name a brand-new planet?',
+    options: ['Bubblegum 🫧', 'Candyland 🍬', 'Zorpon-7 🛸', 'Otterworld 🦦'],
+  },
+  {
+    q: 'Pick the perfect Saturday:',
+    options: ['Trip to the zoo 🦁', 'Swimming 🏊', 'Playground 🛝', 'Pajamas all day 🛋️'],
+  },
+  {
+    q: 'If you could talk to one animal, which would it be?',
+    options: ['A dolphin 🐬', 'An elephant 🐘', 'A penguin 🐧', 'Your pet 🐾'],
+  },
+  {
+    q: 'What dessert wins?',
+    options: ['Ice cream sundae 🍨', 'Cupcakes 🧁', 'Brownies 🍫', 'Donuts 🍩'],
+  },
 ]
 
 // Thoughtful questions — many inspired by parenting experts and child psychologists
@@ -298,18 +354,15 @@ export const FAVORITES_QUESTIONS = [
   'What is your favorite place you have ever been?',
   'What is your favorite thing to do on the weekend?',
   'What is your favorite breakfast food?',
+  'What is your favorite dessert?',
+  'What is your favorite sport?',
+  'What is your favorite TV show?',
+  'What is your favorite superhero?',
+  'What is your favorite dinosaur?',
+  'What is your favorite candy?',
+  'What is your favorite season?',
+  'What is your favorite toy?',
+  'What is your favorite thing to do outside?',
+  'What is your favorite lunch food?',
 ]
 
-// Bedtime questions — the optional 4th page for evening journaling.
-export const EVENING_QUESTIONS = [
-  'What is one thing from today you want to remember when you are grown up?',
-  'Is there anything on your mind as you get ready for bed?',
-  'What are you thankful for as the day ends?',
-  'What do you hope tomorrow brings?',
-  'What was the coziest moment of your day?',
-  'If you could replay one moment from today, which would it be?',
-  'What is one kind thing you want to do tomorrow?',
-  'What are you dreaming about tonight?',
-  'What made today special?',
-  'What is something you want to tell your future self about today?',
-]

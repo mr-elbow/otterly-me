@@ -14,7 +14,7 @@ export default function Step4Evening({ eveningQs, onAdd, onRemove, onText }) {
   return (
     <div className="space-y-8">
       <p className="text-center text-lg font-semibold text-slate-500">
-        One last page before bed… 🌙
+        One last question before you go 🌙
         <br />
         <span className="text-base">None of these are required — answer whatever you like!</span>
       </p>
