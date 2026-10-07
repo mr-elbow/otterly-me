@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { Flame, PencilLine, BookOpenText, Camera, Sparkles, Lock } from 'lucide-react'
 import OtterMascot from './OtterMascot.jsx'
+import JournalSwitcher from './JournalSwitcher.jsx'
 import { calcStreak, shortDateLabel, todayKey } from '../lib/storage.js'
 import { MOOD_OPTIONS, WEATHER_OPTIONS } from '../data/banks.js'
 
@@ -10,7 +12,7 @@ function greeting() {
   return 'Good evening'
 }
 
-export default function Home({ store, onStartJournal, onOpenDen }) {
+export default function Home({ store, profile, profiles, onSelectProfile, onAddJournal, onStartJournal, onOpenDen }) {
   const key = todayKey()
   const today = store.entries[key]
   const streak = calcStreak(store.entries)
@@ -18,11 +20,21 @@ export default function Home({ store, onStartJournal, onOpenDen }) {
   const selfies = Object.values(store.entries).filter((e) => e.selfie).length
   const todayMood = MOOD_OPTIONS.find((m) => m.id === today?.mood)
   const todayWeather = WEATHER_OPTIONS.find((w) => w.id === today?.weather)
+  const [showSwitcher, setShowSwitcher] = useState(false)
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pb-16">
       {/* Hero */}
       <section className="card mt-6 p-6 text-center sm:p-8">
+        {/* Bookplate */}
+        <div className="mb-3">
+          <p className="text-xs font-bold uppercase tracking-[0.3em] text-slate-400">
+            This journal belongs to
+          </p>
+          <p className="font-handwritten -rotate-2 text-5xl leading-tight text-otter-700">
+            {profile?.name}
+          </p>
+        </div>
         <div className="flex justify-center">
           <OtterMascot size={110} wave className="animate-float" />
         </div>
@@ -135,6 +147,25 @@ export default function Home({ store, onStartJournal, onOpenDen }) {
         <Lock className="h-4 w-4" />
         Your journal lives only on this device. No accounts, no uploads — just you.
       </p>
+
+      <div className="mt-4 text-center">
+        <button
+          onClick={() => setShowSwitcher(true)}
+          className="text-base font-bold text-slate-400 underline decoration-dotted underline-offset-4 hover:text-otter-600"
+        >
+          📚 Switch journal
+        </button>
+      </div>
+
+      {showSwitcher && (
+        <JournalSwitcher
+          profiles={profiles}
+          activeId={profile?.id}
+          onSelect={(id) => { setShowSwitcher(false); onSelectProfile(id) }}
+          onAdd={() => { setShowSwitcher(false); onAddJournal() }}
+          onClose={() => setShowSwitcher(false)}
+        />
+      )}
     </div>
   )
 }

@@ -1,14 +1,13 @@
 // ---------------------------------------------------------------------------
 // Local storage helpers — everything stays on this device, nothing is sent
-// anywhere. Entries are stored under a single versioned key.
+// anywhere. Each journal profile keeps its own entries under its own key.
 // ---------------------------------------------------------------------------
 
-const STORAGE_KEY = 'otterly-me-v1'
+const LEGACY_KEY = 'otterly-me-v1'
 
-/** Load the whole store; always returns { entries: {...} } even if corrupt. */
-export function loadStore() {
+function readStore(key) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(key)
     if (!raw) return { entries: {} }
     const parsed = JSON.parse(raw)
     if (parsed && typeof parsed === 'object' && parsed.entries && typeof parsed.entries === 'object') {
@@ -20,14 +19,94 @@ export function loadStore() {
   }
 }
 
-/** Persist the store. Returns true on success, false if the quota blew up. */
-export function saveStore(store) {
+const entriesKey = (profileId) => `otterly-me-entries-${profileId}`
+
+/** Load a journal profile's store; always returns { entries: {...} } even if corrupt. */
+export function loadStore(profileId) {
+  return readStore(entriesKey(profileId))
+}
+
+/** Persist a journal profile's store. Returns true on success, false if the quota blew up. */
+export function saveStore(profileId, store) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(store))
+    localStorage.setItem(entriesKey(profileId), JSON.stringify(store))
     return true
   } catch {
     return false
   }
+}
+
+// ---------------------------------------------------------------------------
+// Journal profiles — each kid gets their own journal with their own entries.
+// ---------------------------------------------------------------------------
+
+const PROFILES_KEY = 'otterly-me-profiles'
+const ACTIVE_PROFILE_KEY = 'otterly-me-active-profile'
+
+export function newProfileId() {
+  return 'journal-' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36)
+}
+
+/**
+ * Load journal profiles. On the first run after journals were introduced,
+ * any entries saved under the old single-journal key are moved into the
+ * first journal so nothing is lost.
+ */
+export function loadProfiles() {
+  let profiles = null
+  try {
+    const raw = localStorage.getItem(PROFILES_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) profiles = parsed.filter((p) => p && typeof p.id === 'string')
+    }
+  } catch {
+    // fall through to migration
+  }
+  if (profiles) return profiles
+
+  profiles = [{ id: newProfileId(), name: '', createdAt: Date.now() }]
+  const legacy = readStore(LEGACY_KEY)
+  if (Object.keys(legacy.entries).length > 0) {
+    try {
+      localStorage.setItem(entriesKey(profiles[0].id), JSON.stringify(legacy))
+      localStorage.removeItem(LEGACY_KEY)
+    } catch {
+      // non-fatal: entries stay under the legacy key and simply won't load
+    }
+  }
+  saveProfiles(profiles)
+  return profiles
+}
+
+export function saveProfiles(profiles) {
+  try {
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles))
+    return true
+  } catch {
+    return false
+  }
+}
+
+export function getActiveProfileId() {
+  try {
+    return localStorage.getItem(ACTIVE_PROFILE_KEY)
+  } catch {
+    return null
+  }
+}
+
+export function setActiveProfileId(id) {
+  try {
+    localStorage.setItem(ACTIVE_PROFILE_KEY, id)
+  } catch {
+    // non-fatal
+  }
+}
+
+/** Entry count for a profile, for the journal switcher. */
+export function countEntries(profileId) {
+  return Object.keys(readStore(entriesKey(profileId)).entries).length
 }
 
 export function upsertEntry(store, key, entry) {

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Caveat:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -20,6 +20,9 @@
 }
 
 @layer components {
+  .font-handwritten {
+    font-family: 'Caveat', 'Segoe Script', 'Comic Sans MS', cursive;
+  }
   .btn-chunky {
     @apply font-display font-bold rounded-2xl px-6 py-4 shadow-chunky transition-transform active:translate-y-1 active:shadow-none select-none;
   }

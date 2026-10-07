@@ -3,15 +3,31 @@ import { House } from 'lucide-react'
 import Home from './components/Home.jsx'
 import Wizard from './components/wizard/Wizard.jsx'
 import Den from './components/Den.jsx'
+import BelongsTo from './components/BelongsTo.jsx'
 import OtterMascot from './components/OtterMascot.jsx'
-import { loadStore, saveStore, deleteEntry } from './lib/storage.js'
+import {
+  loadStore,
+  saveStore,
+  deleteEntry,
+  loadProfiles,
+  saveProfiles,
+  getActiveProfileId,
+  setActiveProfileId,
+  newProfileId,
+} from './lib/storage.js'
 
 export default function App() {
-  const [view, setView] = useState('home') // home | wizard | den
-  const [store, setStore] = useState(loadStore)
+  const [view, setView] = useState('home') // home | wizard | den | belongsto
+  const [profiles, setProfiles] = useState(loadProfiles)
+  const [activeId, setActiveId] = useState(getActiveProfileId)
+  const [addingJournal, setAddingJournal] = useState(false)
   // Which wizard step to open at (1 = start, 4 = jump to bedtime page)
   const [wizardStep, setWizardStep] = useState(1)
   const [wizardKey, setWizardKey] = useState(0)
+
+  const effectiveId = activeId || profiles[0]?.id
+  const activeProfile = profiles.find((p) => p.id === effectiveId) || profiles[0]
+  const [store, setStore] = useState(() => loadStore(effectiveId))
 
   const openWizard = (step = 1) => {
     setWizardStep(step)
@@ -20,10 +36,13 @@ export default function App() {
   }
 
   // Persist helper: writes to state + localStorage, returns success boolean.
-  const persist = useCallback((next) => {
-    setStore(next)
-    return saveStore(next)
-  }, [])
+  const persist = useCallback(
+    (next) => {
+      setStore(next)
+      return saveStore(effectiveId, next)
+    },
+    [effectiveId],
+  )
 
   const handleWizardSave = useCallback(
     (upsertFn, key, entry) => persist(upsertFn(store, key, entry)),
@@ -40,6 +59,43 @@ export default function App() {
     window.scrollTo({ top: 0 })
   }
 
+  const switchProfile = (id) => {
+    if (id !== effectiveId) {
+      setActiveProfileId(id)
+      setActiveId(id)
+      setStore(loadStore(id))
+    }
+    goHome()
+  }
+
+  const startAddJournal = () => {
+    setAddingJournal(true)
+    setView('belongsto')
+    window.scrollTo({ top: 0 })
+  }
+
+  const handleNameSubmit = (name) => {
+    if (addingJournal) {
+      const id = newProfileId()
+      const next = [...profiles, { id, name, createdAt: Date.now() }]
+      setProfiles(next)
+      saveProfiles(next)
+      setActiveProfileId(id)
+      setActiveId(id)
+      setStore(loadStore(id))
+      setAddingJournal(false)
+    } else {
+      const next = profiles.map((p) => (p.id === activeProfile.id ? { ...p, name } : p))
+      setProfiles(next)
+      saveProfiles(next)
+    }
+    goHome()
+  }
+
+  // The journal needs an owner before anything else is shown.
+  const needsName = !activeProfile?.name?.trim()
+  const showBelongsTo = view === 'belongsto' || (view === 'home' && needsName)
+
   return (
     <div className="min-h-screen">
       {/* Top bar */}
@@ -51,7 +107,7 @@ export default function App() {
               Otterly Me!
             </h1>
           </button>
-          {view !== 'home' && (
+          {view !== 'home' && !showBelongsTo && (
             <button
               onClick={goHome}
               aria-label="Go home"
@@ -64,14 +120,26 @@ export default function App() {
       </header>
 
       <main>
-        {view === 'home' && (
+        {showBelongsTo && (
+          <BelongsTo
+            heading={addingJournal ? 'Start a new journal!' : 'Welcome to Otterly Me!'}
+            submitLabel={addingJournal ? 'Create this journal 📖' : 'Start my journal! 🎉'}
+            onSubmit={handleNameSubmit}
+            onCancel={addingJournal ? () => { setAddingJournal(false); goHome() } : undefined}
+          />
+        )}
+        {!showBelongsTo && view === 'home' && (
           <Home
             store={store}
+            profile={activeProfile}
+            profiles={profiles}
+            onSelectProfile={switchProfile}
+            onAddJournal={startAddJournal}
             onStartJournal={openWizard}
             onOpenDen={() => setView('den')}
           />
         )}
-        {view === 'wizard' && (
+        {!showBelongsTo && view === 'wizard' && (
           <Wizard
             key={wizardKey}
             initialStep={wizardStep}
@@ -80,7 +148,7 @@ export default function App() {
             onExit={goHome}
           />
         )}
-        {view === 'den' && (
+        {!showBelongsTo && view === 'den' && (
           <Den store={store} onBack={goHome} onDelete={handleDelete} />
         )}
       </main>
