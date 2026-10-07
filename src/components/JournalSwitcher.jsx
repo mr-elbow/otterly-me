@@ -1,8 +1,22 @@
-import { Plus, X } from 'lucide-react'
+import { useState } from 'react'
+import { Pencil, Plus, X, Check } from 'lucide-react'
 import { countEntries } from '../lib/storage.js'
 
-/** "Whose journal?" — switch between kid journals or start a new one. */
-export default function JournalSwitcher({ profiles, activeId, onSelect, onAdd, onClose }) {
+/** "Whose journal?" — switch between kid journals, rename one, or start a new one. */
+export default function JournalSwitcher({ profiles, activeId, onSelect, onRename, onAdd, onClose }) {
+  const [editingId, setEditingId] = useState(null)
+  const [draftName, setDraftName] = useState('')
+
+  const startEdit = (p) => {
+    setEditingId(p.id)
+    setDraftName(p.name || '')
+  }
+
+  const saveEdit = () => {
+    const name = draftName.trim()
+    if (name && editingId) onRename(editingId, name)
+    setEditingId(null)
+  }
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-otter-900/50 p-4"
@@ -37,14 +51,49 @@ export default function JournalSwitcher({ profiles, activeId, onSelect, onAdd, o
                   {(p.name || '?').charAt(0).toUpperCase()}
                 </span>
                 <span className="flex-1">
-                  <span className="font-handwritten block text-3xl leading-tight text-otter-800">
-                    {p.name || 'Unnamed journal'}
-                  </span>
-                  <span className="text-sm font-bold text-slate-400">
-                    {count} {count === 1 ? 'entry' : 'entries'}
-                  </span>
+                  {editingId === p.id ? (
+                    <span className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        autoFocus
+                        value={draftName}
+                        onChange={(e) => setDraftName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') saveEdit()
+                          if (e.key === 'Escape') setEditingId(null)
+                        }}
+                        maxLength={24}
+                        aria-label="Journal name"
+                        className="font-handwritten w-full rounded-xl border-2 border-otter-300 bg-white px-2 py-1 text-3xl text-otter-800 focus:border-otter-500 focus:outline-none"
+                      />
+                      <button
+                        onClick={saveEdit}
+                        aria-label="Save name"
+                        className="rounded-full bg-otter-500 p-2 text-white transition-transform hover:scale-105"
+                      >
+                        <Check className="h-5 w-5" />
+                      </button>
+                    </span>
+                  ) : (
+                    <>
+                      <span className="font-handwritten block text-3xl leading-tight text-otter-800">
+                        {p.name || 'Unnamed journal'}
+                      </span>
+                      <span className="text-sm font-bold text-slate-400">
+                        {count} {count === 1 ? 'entry' : 'entries'}
+                      </span>
+                    </>
+                  )}
                 </span>
-                {isActive && <span className="text-2xl text-otter-600">✓</span>}
+                {editingId !== p.id && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); startEdit(p) }}
+                    aria-label={`Rename ${p.name || 'journal'}`}
+                    className="rounded-full bg-slate-100 p-2 text-slate-500 transition-transform hover:scale-105 hover:text-otter-600"
+                  >
+                    <Pencil className="h-5 w-5" />
+                  </button>
+                )}
+                {isActive && editingId !== p.id && <span className="text-2xl text-otter-600">✓</span>}
               </button>
             )
           })}

@@ -68,6 +68,14 @@ export default function App() {
     goHome()
   }
 
+  const renameProfile = (id, name) => {
+    // Only the label changes — entries and streaks are keyed by journal id,
+    // so nothing is ever lost on rename.
+    const next = profiles.map((p) => (p.id === id ? { ...p, name } : p))
+    setProfiles(next)
+    saveProfiles(next)
+  }
+
   const startAddJournal = () => {
     setAddingJournal(true)
     setView('belongsto')
@@ -134,6 +142,7 @@ export default function App() {
             profile={activeProfile}
             profiles={profiles}
             onSelectProfile={switchProfile}
+            onRenameProfile={renameProfile}
             onAddJournal={startAddJournal}
             onStartJournal={openWizard}
             onOpenDen={() => setView('den')}

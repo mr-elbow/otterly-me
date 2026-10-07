@@ -12,7 +12,7 @@ function greeting() {
   return 'Good evening'
 }
 
-export default function Home({ store, profile, profiles, onSelectProfile, onAddJournal, onStartJournal, onOpenDen }) {
+export default function Home({ store, profile, profiles, onSelectProfile, onRenameProfile, onAddJournal, onStartJournal, onOpenDen }) {
   const key = todayKey()
   const today = store.entries[key]
   const streak = calcStreak(store.entries)
@@ -162,6 +162,7 @@ export default function Home({ store, profile, profiles, onSelectProfile, onAddJ
           profiles={profiles}
           activeId={profile?.id}
           onSelect={(id) => { setShowSwitcher(false); onSelectProfile(id) }}
+          onRename={onRenameProfile}
           onAdd={() => { setShowSwitcher(false); onAddJournal() }}
           onClose={() => setShowSwitcher(false)}
         />
