@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import Step1Vitals from './Step1Vitals.jsx'
 import Step2Selfie from './Step2Selfie.jsx'
@@ -6,7 +6,7 @@ import Step3Questions from './Step3Questions.jsx'
 import Step4Evening from './Step4Evening.jsx'
 import Step5Celebration from './Step5Celebration.jsx'
 import { MC_QUESTIONS, REFLECTION_QUESTIONS, FUN_QUESTIONS, FAVORITES_QUESTIONS, SELFIE_PROMPTS } from '../../data/banks.js'
-import { pickForDay, todayKey } from '../../lib/storage.js'
+import { pickForDay, todayKey, loadDraft, saveDraft } from '../../lib/storage.js'
 
 const STEP_META = [
   { title: 'The Vitals', emoji: '🌤️' },
@@ -23,9 +23,16 @@ function randomPrompt() {
 // The bedtime page asks this same question every single day.
 const BEDTIME_QUESTION = 'What is one thing from today you want to remember when you are grown up?'
 
-export default function Wizard({ store, onSave, onExit, initialStep = 1 }) {
+export default function Wizard({ store, onSave, onExit, initialStep = 1, profileId }) {
   const key = todayKey()
   const existing = store.entries[key]
+
+  // A draft saved earlier today (then the kid left mid-page) wins over both
+  // a saved entry and a fresh start — it's the newest unsaved work.
+  // Stale drafts from previous days are ignored by loadDraft.
+  const [savedDraft] = useState(() => (profileId ? loadDraft(profileId) : null))
+  const d0 = savedDraft?.draft // today's unfinished answers, if any
+  const e0 = existing // today's saved entry, if any (reopening to edit)
 
   // Questions rotate daily; an in-progress edit keeps the original questions.
   const questions = useMemo(
@@ -43,34 +50,44 @@ export default function Wizard({ store, onSave, onExit, initialStep = 1 }) {
   )
 
   const [draft, setDraft] = useState(() => ({
-    weather: existing?.weather ?? '',
-    breakfast: existing?.breakfast ?? '',
-    mood: existing?.mood ?? '',
-    selfie: existing?.selfie ?? null,
-    selfiePrompt: existing?.selfiePrompt ?? randomPrompt(),
-    mc: existing?.answers?.mc?.choice ?? '',
-    reflection: existing?.answers?.reflection?.text ?? '',
-    reflection2: existing?.answers?.reflection2?.text ?? '',
-    fun: existing?.answers?.fun?.text ?? '',
-    fav1: existing?.answers?.favorites?.[0]?.text ?? '',
-    fav2: existing?.answers?.favorites?.[1]?.text ?? '',
+    weather: d0?.weather ?? e0?.weather ?? '',
+    breakfast: d0?.breakfast ?? e0?.breakfast ?? '',
+    mood: d0?.mood ?? e0?.mood ?? '',
+    selfie: d0?.selfie ?? e0?.selfie ?? null,
+    selfiePrompt: d0?.selfiePrompt ?? e0?.selfiePrompt ?? randomPrompt(),
+    mc: d0?.mc ?? e0?.answers?.mc?.choice ?? '',
+    reflection: d0?.reflection ?? e0?.answers?.reflection?.text ?? '',
+    reflection2: d0?.reflection2 ?? e0?.answers?.reflection2?.text ?? '',
+    fun: d0?.fun ?? e0?.answers?.fun?.text ?? '',
+    fav1: d0?.fav1 ?? e0?.answers?.favorites?.[0]?.text ?? '',
+    fav2: d0?.fav2 ?? e0?.answers?.favorites?.[1]?.text ?? '',
   }))
-  const [step, setStep] = useState(initialStep)
+  // Explicit navigation (e.g. the bedtime shortcut) wins; otherwise resume
+  // where the draft left off.
+  const [step, setStep] = useState(initialStep !== 1 ? initialStep : (savedDraft?.step ?? 1))
   const [nudge, setNudge] = useState('')
 
   // Bonus questions added with the "+" button — each is { q, kind, text }.
   // kind alternates: thoughtful, silly, thoughtful, silly…
   // Bonus questions added with the "+" button — each is { q, kind, text }.
   // kind alternates: thoughtful, silly, thoughtful, silly…
-  const [extraQs, setExtraQs] = useState(() => existing?.extraQuestions ?? [])
+  const [extraQs, setExtraQs] = useState(() => savedDraft?.extraQs ?? existing?.extraQuestions ?? [])
 
   // Bedtime page: starts with one evening question; more can be added.
   // Nothing here is required. Reopening a saved entry keeps answered ones.
   const [eveningQs, setEveningQs] = useState(() =>
-    existing?.eveningQuestions?.length
+    savedDraft?.eveningQs ??
+    (existing?.eveningQuestions?.length
       ? existing.eveningQuestions
-      : [{ q: BEDTIME_QUESTION, kind: 'evening', text: '' }],
+      : [{ q: BEDTIME_QUESTION, kind: 'evening', text: '' }]),
   )
+
+  // Autosave: every change — a tap, a typed letter, a page turn — is written
+  // straight to this journal's draft slot so nothing is ever lost mid-page.
+  useEffect(() => {
+    if (!profileId) return
+    saveDraft(profileId, { step, draft, extraQs, eveningQs })
+  }, [profileId, step, draft, extraQs, eveningQs])
 
   const usedQuestionTexts = () =>
     new Set([

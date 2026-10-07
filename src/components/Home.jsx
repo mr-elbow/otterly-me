@@ -12,7 +12,7 @@ function greeting() {
   return 'Good evening'
 }
 
-export default function Home({ store, profile, profiles, onSelectProfile, onRenameProfile, onAddJournal, onStartJournal, onOpenDen }) {
+export default function Home({ store, profile, profiles, onSelectProfile, onRenameProfile, onAddJournal, onStartJournal, onOpenDen, hasDraft }) {
   const key = todayKey()
   const today = store.entries[key]
   const streak = calcStreak(store.entries)
@@ -60,7 +60,7 @@ export default function Home({ store, profile, profiles, onSelectProfile, onRena
             className="btn-chunky flex items-center justify-center gap-3 bg-otter-500 text-2xl text-white hover:bg-otter-600"
           >
             <PencilLine className="h-7 w-7" />
-            {today ? "Today's Journal ✓" : "Start Today's Journal"}
+            {today ? "Today's Journal ✓" : hasDraft ? "Continue today's journal 📝" : "Start Today's Journal"}
           </button>
           <button
             onClick={onOpenDen}

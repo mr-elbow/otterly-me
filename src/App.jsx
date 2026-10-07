@@ -14,6 +14,9 @@ import {
   getActiveProfileId,
   setActiveProfileId,
   newProfileId,
+  loadDraft,
+  clearDraft,
+  todayKey,
 } from './lib/storage.js'
 
 export default function App() {
@@ -45,8 +48,11 @@ export default function App() {
   )
 
   const handleWizardSave = useCallback(
-    (upsertFn, key, entry) => persist(upsertFn(store, key, entry)),
-    [store, persist],
+    (upsertFn, key, entry) => {
+      clearDraft(effectiveId) // the page is saved — the draft's job is done
+      return persist(upsertFn(store, key, entry))
+    },
+    [store, persist, effectiveId],
   )
 
   const handleDelete = useCallback(
@@ -104,6 +110,9 @@ export default function App() {
   const needsName = !activeProfile?.name?.trim()
   const showBelongsTo = view === 'belongsto' || (view === 'home' && needsName)
 
+  // An unfinished page from earlier today is waiting to be continued.
+  const hasDraft = !store.entries[todayKey()] && !!loadDraft(effectiveId)
+
   return (
     <div className="min-h-screen">
       {/* Top bar */}
@@ -146,12 +155,14 @@ export default function App() {
             onAddJournal={startAddJournal}
             onStartJournal={openWizard}
             onOpenDen={() => setView('den')}
+            hasDraft={hasDraft}
           />
         )}
         {!showBelongsTo && view === 'wizard' && (
           <Wizard
             key={wizardKey}
             initialStep={wizardStep}
+            profileId={effectiveId}
             store={store}
             onSave={handleWizardSave}
             onExit={goHome}

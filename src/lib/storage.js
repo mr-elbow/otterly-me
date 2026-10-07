@@ -109,6 +109,56 @@ export function countEntries(profileId) {
   return Object.keys(readStore(entriesKey(profileId)).entries).length
 }
 
+// ---------------------------------------------------------------------------
+// Draft autosave — an unfinished wizard is saved after every change so a kid
+// never loses a half-written page. Drafts are per-journal and expire daily.
+// ---------------------------------------------------------------------------
+
+const draftKey = (profileId) => `otterly-me-draft-${profileId}`
+
+/**
+ * Load today's in-progress wizard draft for a profile.
+ * Returns the draft data, or null when there is none or it is stale.
+ */
+export function loadDraft(profileId) {
+  try {
+    const raw = localStorage.getItem(draftKey(profileId))
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (parsed && parsed.date === todayKey() && parsed.data) return parsed.data
+    return null
+  } catch {
+    return null
+  }
+}
+
+/** Persist a wizard draft immediately. Returns true on success. */
+export function saveDraft(profileId, data) {
+  const payload = { date: todayKey(), updatedAt: Date.now(), data }
+  try {
+    localStorage.setItem(draftKey(profileId), JSON.stringify(payload))
+    return true
+  } catch {
+    // Quota blow-up: retry without the selfie photo, the biggest field.
+    try {
+      const slim = { ...payload, data: { ...data, draft: { ...data.draft, selfie: null } } }
+      localStorage.setItem(draftKey(profileId), JSON.stringify(slim))
+      return true
+    } catch {
+      return false
+    }
+  }
+}
+
+/** Drop a profile's draft, e.g. after the page is saved. */
+export function clearDraft(profileId) {
+  try {
+    localStorage.removeItem(draftKey(profileId))
+  } catch {
+    // non-fatal
+  }
+}
+
 export function upsertEntry(store, key, entry) {
   return { entries: { ...store.entries, [key]: entry } }
 }
