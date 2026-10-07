@@ -1,7 +1,6 @@
-import { MoonStar, PenLine, PartyPopper, Plus, X } from 'lucide-react'
+import { PenLine, PartyPopper, Plus, X } from 'lucide-react'
 
 const KIND_ICON = {
-  evening: MoonStar,
   reflection: PenLine,
   fun: PartyPopper,
 }
@@ -14,18 +13,18 @@ export default function Step4Evening({ eveningQs, onAdd, onRemove, onText }) {
   return (
     <div className="space-y-8">
       <p className="text-center text-lg font-semibold text-slate-500">
-        One last question before you go 🌙
+        One last question before you go
         <br />
         <span className="text-base">None of these are required — answer whatever you like!</span>
       </p>
 
       {eveningQs.map((e, i) => {
-        const Icon = KIND_ICON[e.kind] ?? MoonStar
+        const Icon = KIND_ICON[e.kind]
         return (
           <div key={`${e.q}-${i}`} className="rounded-2xl bg-otter-50 p-5">
             <div className="mb-3 flex items-start justify-between gap-2">
               <p className="flex items-start gap-2 font-display text-xl font-extrabold text-otter-800">
-                <Icon className="mt-1 h-6 w-6 shrink-0 text-otter-600" />
+                {Icon && <Icon className="mt-1 h-6 w-6 shrink-0 text-otter-600" />}
                 {e.q}
               </p>
               <button

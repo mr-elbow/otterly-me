@@ -21,6 +21,13 @@ export default function Step2Selfie({ draft, setDraft }) {
   }, [])
 
   const startCamera = useCallback(async () => {
+    // Browsers only expose the camera on secure (https) pages. If the journal
+    // is open on the plain http address, mediaDevices is undefined — say so
+    // plainly instead of claiming the device has no camera.
+    if (!window.isSecureContext) {
+      setStatus('insecure')
+      return
+    }
     if (!navigator.mediaDevices?.getUserMedia) {
       setStatus('unsupported')
       return
@@ -140,6 +147,18 @@ export default function Step2Selfie({ draft, setDraft }) {
               </p>
               <p className="mt-1 font-semibold text-slate-500">
                 No problem — your journal works great without a selfie too!
+              </p>
+            </>
+          )}
+          {status === 'insecure' && (
+            <>
+              <p className="mt-3 font-display text-xl font-extrabold text-otter-800">
+                The camera needs the secure address!
+              </p>
+              <p className="mt-1 font-semibold text-slate-500">
+                Browsers only allow the camera on the safe version of the journal. Please open{' '}
+                <span className="font-bold text-otter-700">https://app.getotterlyme.com</span>{' '}
+                to snap your selfie.
               </p>
             </>
           )}
