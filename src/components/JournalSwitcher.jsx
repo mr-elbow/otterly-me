@@ -1,11 +1,13 @@
-import { useState } from 'react'
-import { Pencil, Plus, X, Check } from 'lucide-react'
-import { countEntries } from '../lib/storage.js'
+import { useState, useRef } from 'react'
+import { Pencil, Plus, X, Check, Download, Upload } from 'lucide-react'
+import { countEntries, exportBackup, importBackup } from '../lib/storage.js'
 
 /** "Whose journal?" — switch between kid journals, rename one, or start a new one. */
 export default function JournalSwitcher({ profiles, activeId, onSelect, onRename, onAdd, onClose }) {
   const [editingId, setEditingId] = useState(null)
   const [draftName, setDraftName] = useState('')
+  const [importMsg, setImportMsg] = useState(null)
+  const fileRef = useRef(null)
 
   const startEdit = (p) => {
     setEditingId(p.id)
@@ -16,6 +18,20 @@ export default function JournalSwitcher({ profiles, activeId, onSelect, onRename
     const name = draftName.trim()
     if (name && editingId) onRename(editingId, name)
     setEditingId(null)
+  }
+
+  const doImport = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setImportMsg(null)
+    if (!window.confirm('Restore will replace the journals on this device with the backup file. Continue?')) return
+    try {
+      await importBackup(file)
+      window.location.reload()
+    } catch {
+      setImportMsg('That file is not an Otterly Me backup.')
+    }
   }
   return (
     <div
@@ -104,6 +120,31 @@ export default function JournalSwitcher({ profiles, activeId, onSelect, onRename
         >
           <Plus className="h-6 w-6" /> New journal
         </button>
+        <div className="mt-3 flex gap-2">
+          <button
+            onClick={exportBackup}
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-otter-100 px-3 py-2.5 font-bold text-otter-700 transition-transform hover:scale-[1.02]"
+          >
+            <Download className="h-5 w-5" /> Backup
+          </button>
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-otter-100 px-3 py-2.5 font-bold text-otter-700 transition-transform hover:scale-[1.02]"
+          >
+            <Upload className="h-5 w-5" /> Restore
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".json,application/json"
+            className="hidden"
+            onChange={doImport}
+          />
+        </div>
+        {importMsg && <p className="mt-2 text-center text-sm font-bold text-red-500">{importMsg}</p>}
+        <p className="mt-2 text-center text-xs font-semibold text-slate-400">
+          Moving to the new address? Backup here first, then Restore there.
+        </p>
       </div>
     </div>
   )

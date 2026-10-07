@@ -110,6 +110,58 @@ export function countEntries(profileId) {
 }
 
 // ---------------------------------------------------------------------------
+// Backup & restore — move journals between addresses or devices as a JSON
+// file. Everything is included: every journal profile and all of its entries.
+// ---------------------------------------------------------------------------
+
+/** Download all journals (profiles + entries) as a JSON backup file. */
+export function exportBackup() {
+  const profiles = loadProfiles()
+  const stores = {}
+  for (const p of profiles) stores[p.id] = loadStore(p.id)
+  const data = {
+    app: 'otterly-me',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    profiles,
+    activeProfileId: getActiveProfileId(),
+    stores,
+  }
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `otterly-me-backup-${todayKey()}.json`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+/**
+ * Restore journals from a backup file. Replaces everything currently stored
+ * on this device. Returns the restored profiles. Throws on invalid files.
+ */
+export async function importBackup(file) {
+  const data = JSON.parse(await file.text())
+  if (!data || data.app !== 'otterly-me' || !Array.isArray(data.profiles) || !data.stores || typeof data.stores !== 'object') {
+    throw new Error('not-a-backup')
+  }
+  const profiles = data.profiles.filter((p) => p && typeof p.id === 'string')
+  if (!profiles.length) throw new Error('not-a-backup')
+  saveProfiles(profiles)
+  for (const p of profiles) {
+    const s = data.stores[p.id]
+    saveStore(p.id, s && s.entries && typeof s.entries === 'object' ? { entries: s.entries } : { entries: {} })
+  }
+  const activeId = typeof data.activeProfileId === 'string' && profiles.some((p) => p.id === data.activeProfileId)
+    ? data.activeProfileId
+    : profiles[0].id
+  setActiveProfileId(activeId)
+  return profiles
+}
+
+// ---------------------------------------------------------------------------
 // Draft autosave — an unfinished wizard is saved after every change so a kid
 // never loses a half-written page. Drafts are per-journal and expire daily.
 // ---------------------------------------------------------------------------
