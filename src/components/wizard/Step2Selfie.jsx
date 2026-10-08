@@ -128,6 +128,10 @@ export default function Step2Selfie({ draft, setDraft }) {
                 The camera permission was blocked, so we can't take a selfie. You can still finish
                 your journal without one!
               </p>
+              <p className="mt-2 text-sm font-bold text-otter-600">
+                Grown-up tip: tap the tune icon in the address bar → Permissions → Camera → Allow,
+                then try again.
+              </p>
             </>
           )}
           {status === 'error' && (
