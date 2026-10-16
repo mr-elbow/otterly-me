@@ -1,11 +1,20 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import Step1Vitals from './Step1Vitals.jsx'
 import Step2Selfie from './Step2Selfie.jsx'
 import Step3Questions from './Step3Questions.jsx'
 import Step4Evening from './Step4Evening.jsx'
 import Step5Celebration from './Step5Celebration.jsx'
-import { MC_QUESTIONS, REFLECTION_QUESTIONS, FUN_QUESTIONS, FAVORITES_QUESTIONS, SELFIE_PROMPTS } from '../../data/banks.js'
+import {
+  MC_QUESTIONS,
+  REFLECTION_QUESTIONS,
+  FUN_QUESTIONS,
+  FAVORITES_QUESTIONS,
+  SELFIE_PROMPTS,
+  DAY_OFF_QUESTIONS,
+  qText,
+  noSchoolBank,
+} from '../../data/banks.js'
 import { pickForDay, todayKey, loadDraft, saveDraft } from '../../lib/storage.js'
 
 const STEP_META = [
@@ -34,25 +43,17 @@ export default function Wizard({ store, onSave, onExit, initialStep = 1, profile
   const d0 = savedDraft?.draft // today's unfinished answers, if any
   const e0 = existing // today's saved entry, if any (reopening to edit)
 
-  // Questions rotate daily; an in-progress edit keeps the original questions.
-  const questions = useMemo(
-    () =>
-      existing?.questions ?? {
-        mc: pickForDay(MC_QUESTIONS),
-        reflection: pickForDay(REFLECTION_QUESTIONS, 5),
-        reflection2: pickForDay(REFLECTION_QUESTIONS, 9),
-        fun: pickForDay(FUN_QUESTIONS, 11),
-        fav1: pickForDay(FAVORITES_QUESTIONS, 2),
-        fav2: pickForDay(FAVORITES_QUESTIONS, 8),
-      },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  )
+  // School-day awareness: weekends never ask about school and never show
+  // school-tagged questions. On weekdays the kid answers "Did you go to
+  // school today?" — "no" filters school questions out and swaps in a
+  // day-off follow-up question on the questions page.
+  const isWeekend = [0, 6].includes(new Date().getDay())
 
   const [draft, setDraft] = useState(() => ({
     weather: d0?.weather ?? e0?.weather ?? '',
     breakfast: d0?.breakfast ?? e0?.breakfast ?? '',
     mood: d0?.mood ?? e0?.mood ?? '',
+    wentToSchool: d0?.wentToSchool ?? e0?.wentToSchool ?? '',
     selfie: d0?.selfie ?? e0?.selfie ?? null,
     selfiePrompt: d0?.selfiePrompt ?? e0?.selfiePrompt ?? randomPrompt(),
     mc: d0?.mc ?? e0?.answers?.mc?.choice ?? '',
@@ -62,6 +63,51 @@ export default function Wizard({ store, onSave, onExit, initialStep = 1, profile
     fav1: d0?.fav1 ?? e0?.answers?.favorites?.[0]?.text ?? '',
     fav2: d0?.fav2 ?? e0?.answers?.favorites?.[1]?.text ?? '',
   }))
+
+  // True on weekends, or on a weekday the kid said they stayed home.
+  // Drives school-question filtering and the day-off follow-up.
+  const isNonSchoolDay = isWeekend || draft.wentToSchool === 'no'
+  // The day-off follow-up only makes sense on a weekday answered "no"
+  // (weekends get the normal mix, just without school questions).
+  const showDayOffQ = !isWeekend && draft.wentToSchool === 'no'
+
+  // Questions rotate daily; an in-progress edit keeps the original questions.
+  const questions = useMemo(() => {
+    const dayOff = qText(pickForDay(DAY_OFF_QUESTIONS, 3))
+    // On non-school days, school-tagged questions are filtered out of every bank.
+    const pool = (bank) => (isNonSchoolDay ? noSchoolBank(bank) : bank)
+    if (existing?.questions) return { ...existing.questions, dayOff }
+    return {
+      mc: pickForDay(pool(MC_QUESTIONS)),
+      reflection: qText(pickForDay(pool(REFLECTION_QUESTIONS), 5)),
+      reflection2: qText(pickForDay(pool(REFLECTION_QUESTIONS), 9)),
+      fun: qText(pickForDay(pool(FUN_QUESTIONS), 11)),
+      fav1: qText(pickForDay(pool(FAVORITES_QUESTIONS), 2)),
+      fav2: qText(pickForDay(pool(FAVORITES_QUESTIONS), 8)),
+      dayOff,
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNonSchoolDay])
+
+  // What the kid actually sees: on a day off, the second reflection slot
+  // becomes the day-off follow-up question.
+  const displayQuestions = {
+    ...questions,
+    reflection2: showDayOffQ ? questions.dayOff : questions.reflection2,
+  }
+
+  // If the school-day answer flips after questions were picked (the kid went
+  // back to step 1 and changed it), the question set changed — clear step-3
+  // answers so a stale answer can't be saved under a new question.
+  const prevNonSchoolDay = useRef(isNonSchoolDay)
+  useEffect(() => {
+    if (prevNonSchoolDay.current !== isNonSchoolDay && !existing) {
+      setDraft((d) => ({ ...d, mc: '', reflection: '', reflection2: '', fun: '', fav1: '', fav2: '' }))
+      setExtraQs([])
+    }
+    prevNonSchoolDay.current = isNonSchoolDay
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNonSchoolDay])
   // Explicit navigation (e.g. the bedtime shortcut) wins; otherwise resume
   // where the draft left off.
   const [step, setStep] = useState(initialStep !== 1 ? initialStep : (savedDraft?.step ?? 1))
@@ -91,30 +137,32 @@ export default function Wizard({ store, onSave, onExit, initialStep = 1, profile
 
   const usedQuestionTexts = () =>
     new Set([
-      questions.mc.q,
-      questions.reflection,
-      questions.reflection2,
-      questions.fun,
-      questions.fav1,
-      questions.fav2,
+      displayQuestions.mc.q,
+      displayQuestions.reflection,
+      displayQuestions.reflection2,
+      displayQuestions.fun,
+      displayQuestions.fav1,
+      displayQuestions.fav2,
       ...extraQs.map((e) => e.q),
       ...eveningQs.map((e) => e.q),
     ])
 
   // Pick the next bonus question for a list, alternating thoughtful/silly
   // based on what's already there so removals never break the cycle.
+  // Bonus picks respect the school-day filter too.
   const pickBonusQuestion = (list) => {
     const reflectionCount = list.filter((e) => e.kind === 'reflection').length
     const funCount = list.filter((e) => e.kind === 'fun').length
     const kind = reflectionCount <= funCount ? 'reflection' : 'fun'
-    const bank = kind === 'reflection' ? REFLECTION_QUESTIONS : FUN_QUESTIONS
+    const rawBank = kind === 'reflection' ? REFLECTION_QUESTIONS : FUN_QUESTIONS
+    const bank = isNonSchoolDay ? noSchoolBank(rawBank) : rawBank
     const used = usedQuestionTexts()
     let offset = kind === 'reflection' ? 13 : 17
-    let q = pickForDay(bank, offset + list.length * 7)
+    let q = qText(pickForDay(bank, offset + list.length * 7))
     let guard = 0
     while (used.has(q) && guard < bank.length) {
       offset += 1
-      q = pickForDay(bank, offset + list.length * 7)
+      q = qText(pickForDay(bank, offset + list.length * 7))
       guard += 1
     }
     return { q, kind, text: '' }
@@ -131,7 +179,8 @@ export default function Wizard({ store, onSave, onExit, initialStep = 1, profile
     setEveningQs((prev) => prev.map((e, i) => (i === index ? { ...e, text } : e)))
 
   const canContinue = () => {
-    if (step === 1) return draft.weather !== '' && draft.mood !== ''
+    if (step === 1)
+      return draft.weather !== '' && draft.mood !== '' && (isWeekend || draft.wentToSchool !== '')
     if (step === 2) return true // selfie is optional — skipping is okay
     if (step === 3)
       return (
@@ -151,7 +200,9 @@ export default function Wizard({ store, onSave, onExit, initialStep = 1, profile
     if (!canContinue()) {
       setNudge(
         step === 1
-          ? 'Pick the weather and your mood to keep going! 🌤️'
+          ? !isWeekend && draft.wentToSchool === ''
+            ? 'Did you go to school today? Tap Yes or No! 🏫'
+            : 'Pick the weather and your mood to keep going! 🌤️'
           : 'Answer all the questions to keep going! 💭',
       )
       return
@@ -204,13 +255,13 @@ export default function Wizard({ store, onSave, onExit, initialStep = 1, profile
 
       {/* Step body */}
       <div className="card mt-6 animate-pop-in p-6 sm:p-8" key={step}>
-        {step === 1 && <Step1Vitals draft={draft} setDraft={setDraft} />}
+        {step === 1 && <Step1Vitals draft={draft} setDraft={setDraft} showSchoolQ={!isWeekend} />}
         {step === 2 && <Step2Selfie draft={draft} setDraft={setDraft} />}
         {step === 3 && (
           <Step3Questions
             draft={draft}
             setDraft={setDraft}
-            questions={questions}
+            questions={displayQuestions}
             extraQs={extraQs}
             onAddExtra={addExtraQuestion}
             onRemoveExtra={removeExtraQuestion}
@@ -228,7 +279,7 @@ export default function Wizard({ store, onSave, onExit, initialStep = 1, profile
         {step === 5 && (
           <Step5Celebration
             draft={draft}
-            questions={questions}
+            questions={displayQuestions}
             extraQs={extraQs}
             eveningQs={eveningQs}
             entryKey={key}

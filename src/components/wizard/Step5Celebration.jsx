@@ -41,6 +41,7 @@ export default function Step5Celebration({ draft, questions, extraQs, eveningQs,
       weather: draft.weather,
       breakfast: draft.breakfast.trim(),
       mood: draft.mood,
+      wentToSchool: draft.wentToSchool || null,
       selfie: draft.selfie,
       selfiePrompt: draft.selfiePrompt,
       questions: {

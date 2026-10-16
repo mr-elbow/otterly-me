@@ -3,6 +3,32 @@
 // Questions rotate by day of year so every day feels fresh.
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// School-day tagging — entries shaped { q, school: true } assume the kid went
+// to school that day. They are hidden on weekends and on weekdays the kid
+// answers "no" to "Did you go to school today?". Untouched entries stay plain
+// strings; both shapes work everywhere via the helpers below.
+// ---------------------------------------------------------------------------
+
+/** Normalize a bank entry to its question text. */
+export function qText(item) {
+  return typeof item === 'string' ? item : item.q
+}
+
+/** True when a bank entry is tagged as school-related. */
+export function isSchoolQuestion(item) {
+  return typeof item === 'object' && item !== null && item.school === true
+}
+
+/**
+ * A question bank with school-tagged questions removed, for weekends and
+ * days off. Falls back to the full bank if filtering would empty it.
+ */
+export function noSchoolBank(bank) {
+  const filtered = bank.filter((item) => !isSchoolQuestion(item))
+  return filtered.length > 0 ? filtered : bank
+}
+
 export const WEATHER_OPTIONS = [
   { id: 'sunny', emoji: '☀️', label: 'Sunny' },
   { id: 'hot', emoji: '🥵', label: 'Hot' },
@@ -80,6 +106,7 @@ export const MC_QUESTIONS = [
   },
   {
     q: 'Which school subject would you turn into a video game?',
+    school: true,
     options: ['Math ➗', 'Reading 📚', 'Science 🧬', 'Art 🎨'],
   },
   {
@@ -100,6 +127,7 @@ export const MC_QUESTIONS = [
   },
   {
     q: 'What would you ride into school on?',
+    school: true,
     options: ['A dragon 🐉', 'A hoverboard 🛹', 'A unicorn 🦄', 'A rocket 🚀'],
   },
   {
@@ -116,6 +144,7 @@ export const MC_QUESTIONS = [
   },
   {
     q: 'What should your classroom pet be?',
+    school: true,
     options: ['A hamster 🐹', 'A lizard 🦎', 'A parrot 🦜', 'A tiny dinosaur 🦕'],
   },
   {
@@ -173,7 +202,7 @@ export const REFLECTION_QUESTIONS = [
   'What is something you could get better at with practice?',
   'What went well today?',
   'Name three things you are grateful for today.',
-  'What was the trickiest part of your schoolwork today?',
+  { q: 'What was the trickiest part of your schoolwork today?', school: true },
   'What is a mistake you learned from today?',
   'Who were you proud of today, and why?',
   'What is one thing that would have made today better?',
@@ -195,7 +224,7 @@ export const REFLECTION_QUESTIONS = [
   'Did you see anyone being unkind today? How did you respond?',
   'How were you brave today?',
   'How were you a good friend today?',
-  'If you saw someone sitting alone at lunch, what do you think they might be feeling?',
+  { q: 'If you saw someone sitting alone at lunch, what do you think they might be feeling?', school: true },
   'If you could fix one thing about the world, what would you start with?',
   'What is something you used to be scared of that doesn\'t scare you anymore?',
   'When is the last time you felt really proud of yourself? What was it about?',
@@ -203,47 +232,47 @@ export const REFLECTION_QUESTIONS = [
   'What is a compliment someone gave you that meant a lot?',
   'What happened today that made you feel smart?',
   'What is something about being your age right now that you want to remember?',
-  'If you got one wish about school, what would it be?',
+  { q: 'If you got one wish about school, what would it be?', school: true },
   'What do you wish grown-ups understood about kids?',
-  'What was the most interesting thing your teacher said today?',
-  'What questions did you ask at school today?',
+  { q: 'What was the most interesting thing your teacher said today?', school: true },
+  { q: 'What questions did you ask at school today?', school: true },
   'What is something you saw today that made you think?',
   'Why is it important to believe in yourself?',
   'What does being happy mean to you?',
   'Which activities make you feel the most like yourself?',
-  'Who did you sit with at lunch today, and what did you talk about?',
-  'Who did you play with at recess, and what game did you play?',
+  { q: 'Who did you sit with at lunch today, and what did you talk about?', school: true },
+  { q: 'Who did you play with at recess, and what game did you play?', school: true },
   'Did you help anyone today, or did anyone help you?',
   'Tell me one thing you learned today that you didn\'t know yesterday.',
   'What was your favorite part of the day, and what was your least favorite?',
   'What do you like most about your best friend?',
   'Was anyone sitting or playing by themselves today? Who?',
   'If they wanted company, how could you invite them to join you?',
-  'How did a classmate or friend show they cared about you today?',
-  'How did you show a classmate or friend that you cared about them today?',
-  'What classmates did you work with today?',
+  { q: 'How did a classmate or friend show they cared about you today?', school: true },
+  { q: 'How did you show a classmate or friend that you cared about them today?', school: true },
+  { q: 'What classmates did you work with today?', school: true },
   'What did you do to make someone\'s day better?',
   'What did you talk about with your friends today?',
-  'Who would you sit next to in class if you could choose? Why?',
-  'Is there someone in your class you would like to get to know better?',
+  { q: 'Who would you sit next to in class if you could choose? Why?', school: true },
+  { q: 'Is there someone in your class you would like to get to know better?', school: true },
   'What qualities do you like your friends to have?',
   'Did you play with someone new today?',
-  'What\'s everyone talking about at school right now?',
-  'Who are you hanging out with this year?',
+  { q: 'What\'s everyone talking about at school right now?', school: true },
+  { q: 'Who are you hanging out with this year?', school: true },
   'Tell me something you learned about a friend today.',
   'Who do you want to make friends with but haven\'t yet? Why not?',
-  'Who did you share your snacks with at lunch?',
-  'Which classmate do you want to talk to tomorrow that you didn\'t talk to today?',
-  'If you could play with three people at recess, which ones would you want to play with? Why?',
+  { q: 'Who did you share your snacks with at lunch?', school: true },
+  { q: 'Which classmate do you want to talk to tomorrow that you didn\'t talk to today?', school: true },
+  { q: 'If you could play with three people at recess, which ones would you want to play with? Why?', school: true },
   'Did anyone say thank you to you today? What did they thank you for?',
-  'Tell me about a conversation you had with a classmate or friend that you enjoyed.',
-  'Who thinks of the best games at recess?',
-  'If you could swap your lunch with someone, who would you choose?',
-  'Is there someone at school who has a talent you really wish you had?',
-  'What do you think I would like most about your school day?',
+  { q: 'Tell me about a conversation you had with a classmate or friend that you enjoyed.', school: true },
+  { q: 'Who thinks of the best games at recess?', school: true },
+  { q: 'If you could swap your lunch with someone, who would you choose?', school: true },
+  { q: 'Is there someone at school who has a talent you really wish you had?', school: true },
+  { q: 'What do you think I would like most about your school day?', school: true },
   'Tell me about a moment today when you felt excited about what you were learning.',
-  'Tell me about a moment in class when you felt confused.',
-  'What is something from school you would like to know more about?',
+  { q: 'Tell me about a moment in class when you felt confused.', school: true },
+  { q: 'What is something from school you would like to know more about?', school: true },
   'What did you learn about yourself today?',
   'Is there a question you wish I would ask you about your day?',
   'What did you learn today that actually surprised you?',
@@ -251,19 +280,29 @@ export const REFLECTION_QUESTIONS = [
   'What did you do today that made you wobble?',
   'What happened today that made you keep going?',
   'What will you do to challenge yourself tomorrow?',
-  'What word did your teacher say the most today?',
-  'What did you ask your teacher for help with today?',
-  'What new songs or stories did you learn today?',
+  { q: 'What word did your teacher say the most today?', school: true },
+  { q: 'What did you ask your teacher for help with today?', school: true },
+  { q: 'What new songs or stories did you learn today?', school: true },
   'Tell me about something you made, built, drew, or wrote today.',
-  'What was the book about that your teacher read?',
+  { q: 'What was the book about that your teacher read?', school: true },
   'What did you do that was creative today?',
-  'Tell me about what you read in class.',
-  'What rules are different at school than at home? Do you think they are fair?',
-  'Tell me three things you used your pencil for at school.',
-  'What is one thing you hope to learn before the school year is over?',
-  'What did you do in art, music, or P.E. today?',
+  { q: 'Tell me about what you read in class.', school: true },
+  { q: 'What rules are different at school than at home? Do you think they are fair?', school: true },
+  { q: 'Tell me three things you used your pencil for at school.', school: true },
+  { q: 'What is one thing you hope to learn before the school year is over?', school: true },
+  { q: 'What did you do in art, music, or P.E. today?', school: true },
   'What part of your day went by the fastest?',
-  'What do you do when you have a question during class?',
+  { q: 'What do you do when you have a question during class?', school: true },
+  { q: 'What is one thing your teacher explained today that finally clicked?', school: true },
+  { q: 'What was the best question someone asked in class today?', school: true },
+  { q: 'Did you get to choose anything at school today? What did you pick?', school: true },
+  { q: 'What is something hard you kept working on at school today?', school: true },
+  { q: 'Who made you laugh at school today? What happened?', school: true },
+  { q: 'What is one way you were helpful in your classroom today?', school: true },
+  { q: 'If you could teach your class one thing you know, what would it be?', school: true },
+  { q: 'What did you notice at school today that you never noticed before?', school: true },
+  { q: 'What are you most curious about right now from school?', school: true },
+  { q: 'What is something you want to ask your teacher tomorrow?', school: true },
 ]
 
 // Silly & imaginative questions — many inspired by popular parenting resources
@@ -305,34 +344,62 @@ export const FUN_QUESTIONS = [
   'If you had to eat one food for the rest of your life, what would it be?',
   'If your pet could talk for one minute a day, what would you ask them?',
   'If you met someone from another planet, what would you talk about?',
-  'What is the most hilarious thing your teacher could do tomorrow?',
+  { q: 'What is the most hilarious thing your teacher could do tomorrow?', school: true },
   'What made you laugh today?',
   'What was the weirdest or coolest thing that happened today?',
-  'If an alien spaceship beamed someone up from your class, who would you want it to be?',
+  { q: 'If an alien spaceship beamed someone up from your class, who would you want it to be?', school: true },
   'If your day was an emoji, which one would it be?',
-  'Did you catch anyone picking their nose?',
-  'Which one of your teachers would survive a zombie apocalypse? Why?',
-  'If school were a ride at the fair, which ride would it be? Why?',
-  'Does your teacher remind you of anyone else you know? How?',
-  'If you were to get sent to the principal\'s office, what would it be for?',
-  'If you could draw any picture on the whiteboard at school, what would you draw?',
-  'If you could create a new subject to study at school, what would it be?',
-  'If you could get to school using any mode of transportation, how would you get there?',
-  'If you were a teacher, what would be the first thing you would say to your class?',
-  'If you could swap desks with anyone, who would you pick and why?',
-  'If you could be in another grade, which one would you pick?',
-  'Would you rather eat school lunch forever or pack your lunch every day?',
-  'If you were the teacher tomorrow, what would be your first rule?',
+  { q: 'Did you catch anyone picking their nose?', school: true },
+  { q: 'Which one of your teachers would survive a zombie apocalypse? Why?', school: true },
+  { q: 'If school were a ride at the fair, which ride would it be? Why?', school: true },
+  { q: 'Does your teacher remind you of anyone else you know? How?', school: true },
+  { q: 'If you were to get sent to the principal\'s office, what would it be for?', school: true },
+  { q: 'If you could draw any picture on the whiteboard at school, what would you draw?', school: true },
+  { q: 'If you could create a new subject to study at school, what would it be?', school: true },
+  { q: 'If you could get to school using any mode of transportation, how would you get there?', school: true },
+  { q: 'If you were a teacher, what would be the first thing you would say to your class?', school: true },
+  { q: 'If you could swap desks with anyone, who would you pick and why?', school: true },
+  { q: 'If you could be in another grade, which one would you pick?', school: true },
+  { q: 'Would you rather eat school lunch forever or pack your lunch every day?', school: true },
+  { q: 'If you were the teacher tomorrow, what would be your first rule?', school: true },
   'If you had to describe how you are feeling today in terms of weather, what would you be?',
-  'Who brought the best food in their lunch today? What was it?',
-  'If one of your classmates could be the teacher for the day, who would you want it to be? Why?',
-  'Which person in your class is your exact opposite?',
-  'Where is the coolest place at school?',
-  'What is the most popular game played at lunch break?',
+  { q: 'Who brought the best food in their lunch today? What was it?', school: true },
+  { q: 'If one of your classmates could be the teacher for the day, who would you want it to be? Why?', school: true },
+  { q: 'Which person in your class is your exact opposite?', school: true },
+  { q: 'Where is the coolest place at school?', school: true },
+  { q: 'What is the most popular game played at lunch break?', school: true },
   'What would your dream playground look like?',
-  'How many of your classmates wore red today?',
-  'Would you rather be the funniest kid in school or the smartest?',
+  { q: 'How many of your classmates wore red today?', school: true },
+  { q: 'Would you rather be the funniest kid in school or the smartest?', school: true },
   'Would you rather have to sing everything you say or speak in a robot voice?',
+  { q: 'If your classroom had a secret trapdoor, where would it lead?', school: true },
+  { q: "What would your teacher's superhero costume look like?", school: true },
+  { q: 'Invent a new school rule that everyone would love.', school: true },
+  { q: 'What if your desk could talk — what would it complain about?', school: true },
+  { q: 'Design the ultimate field trip. Where do you go?', school: true },
+  { q: 'If homework were a monster, how would you defeat it?', school: true },
+  { q: "What would the school mascot's diary say about today?", school: true },
+  { q: 'If the principal traded places with you for a day, what would happen?', school: true },
+]
+
+// Day-off questions — asked on weekdays the kid answers "no" to
+// "Did you go to school today?", following up on what they did instead.
+// A mix of thoughtful and silly, all about their day off.
+export const DAY_OFF_QUESTIONS = [
+  'What is the best thing you did with your day off?',
+  'Did you go anywhere special today? Tell me about it.',
+  "What is something you did today that you can't do on a school day?",
+  'Who did you spend time with today? What did you do together?',
+  'What is one new thing you tried on your day off?',
+  'What made today feel different from a school day?',
+  'What is something you learned outside of school today?',
+  'What was the coziest moment of your day?',
+  'You are the boss of today — what is the schedule?',
+  'Invent a brand-new way to spend a day off. What is it called?',
+  'If you could teleport anywhere for one afternoon, where would you go?',
+  'What is the silliest thing that happened today?',
+  'Design your dream day-off fort. What is inside?',
+  'If today were a video game level, what would it be called?',
 ]
 
 export const BREAKFAST_ICONS = ['🥞', '🥣', '🍳', '🥯', '🧇', '🍎', '🥛', '🍞']
@@ -350,7 +417,7 @@ export const FAVORITES_QUESTIONS = [
   'What is your favorite game to play?',
   'What is your favorite ice cream flavor?',
   'What is your favorite holiday?',
-  'What is your favorite subject in school?',
+  { q: 'What is your favorite subject in school?', school: true },
   'What is your favorite place you have ever been?',
   'What is your favorite thing to do on the weekend?',
   'What is your favorite breakfast food?',
